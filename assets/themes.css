@@ -1,0 +1,155 @@
+/* ============================================================
+   贺州 · 社保规划  —  外观皮肤：轻量小程序风
+   ------------------------------------------------------------
+   通过 <html data-theme="mint"> 启用。
+   主色集中在顶部变量，改配色只需改 --brand / --brand-2 两处，
+   渐变字与按钮会自动跟随。
+   ============================================================ */
+[data-theme="mint"] {
+  --brand: #17a99a;
+  --brand-2: #4fc3b5;
+  --ink: #17323f;
+  --muted: #7d93a0;
+  --line: #e8f1f2;
+  --bg: #f3f9fa;
+  --green: #17a99a;
+  --red: #f2705e;
+}
+[data-theme="mint"] body {
+  background:
+    radial-gradient(1200px 400px at 50% -180px, #d8f2ef 0%, rgba(243, 249, 250, 0) 70%),
+    #f3f9fa;
+  color: #5b7280;
+}
+[data-theme="mint"] .container { max-width: 720px; padding: 14px 16px 36px; }
+
+/* 头部：浅底大字，弱化色块 */
+[data-theme="mint"] .header {
+  background: transparent;
+  box-shadow: none;
+  padding: 26px 8px 6px;
+  text-align: left;
+  color: var(--ink);
+  overflow: visible;
+  border-radius: 0;
+}
+[data-theme="mint"] .header::after { display: none; }
+[data-theme="mint"] .header .brand-row {
+  border: 0; padding: 0 10px; margin-bottom: 6px;
+  color: var(--brand); font-size: 12px; letter-spacing: 1px;
+  background: rgba(23, 169, 154, .1); border-radius: 20px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+[data-theme="mint"] .header h1 {
+  font-size: 30px; letter-spacing: 0; font-weight: 800;
+  background: linear-gradient(100deg, #0f9b8e, #38b9a9 60%, #5ec9bb);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="mint"] .header h1 .dot { opacity: .35; -webkit-text-fill-color: #38b9a9; }
+[data-theme="mint"] .header .subtitle { font-size: 13.5px; color: var(--muted); opacity: 1; margin-top: 2px; }
+[data-theme="mint"] .header .meta { font-size: 11.5px; color: #a4b7c0; opacity: 1; margin-top: 6px; }
+
+/* 切换器：胶囊滑块 */
+[data-theme="mint"] .insurance-mode-tabs {
+  background: #fff; border: 1px solid #e8f1f2; border-radius: 999px;
+  padding: 5px; box-shadow: 0 4px 14px rgba(23, 169, 154, .07);
+  margin: 14px 0 16px;
+}
+[data-theme="mint"] .mode-tab {
+  border-radius: 999px; font-size: 14px; font-weight: 600; padding: 10px 6px;
+}
+[data-theme="mint"] .mode-tab.active {
+  background: linear-gradient(135deg, #1bb3a3, #45c4b5);
+  box-shadow: 0 4px 12px rgba(23, 169, 154, .3);
+}
+
+/* 卡片：大圆角、弱边线、柔和投影 */
+[data-theme="mint"] .card {
+  border-radius: 18px; border: 0; padding: 20px 18px;
+  box-shadow: 0 6px 22px rgba(21, 91, 106, .06);
+  margin-bottom: 14px;
+}
+[data-theme="mint"] .card-title {
+  border-left: 0; font-size: 16px; color: var(--ink);
+  padding-left: 0; margin-bottom: 14px; gap: 8px;
+}
+[data-theme="mint"] .card-title::before {
+  content: ""; width: 4px; height: 16px; border-radius: 2px;
+  background: linear-gradient(#1bb3a3, #6fd0c4); display: inline-block; margin-right: 2px;
+}
+
+/* 表单：浅底输入框，去掉硬边框 */
+[data-theme="mint"] input[type="text"],
+[data-theme="mint"] input[type="number"],
+[data-theme="mint"] select {
+  background: #f6fbfb; border: 1px solid transparent; border-radius: 12px;
+  padding: 12px 14px; color: var(--ink); font-size: 15px;
+}
+[data-theme="mint"] input:focus, [data-theme="mint"] select:focus {
+  background: #fff; border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(23, 169, 154, .1);
+}
+[data-theme="mint"] input[readonly] { background: #f0f7f7; color: var(--brand); }
+[data-theme="mint"] .form-group label { color: #4a6673; font-size: 13.5px; }
+
+/* 按钮：大圆角、渐变 */
+[data-theme="mint"] .btn { border-radius: 999px; }
+[data-theme="mint"] .btn-calculate {
+  background: linear-gradient(135deg, #19a795, #3fc0af);
+  box-shadow: 0 8px 20px rgba(23, 169, 154, .28);
+  font-size: 16px; letter-spacing: 1px;
+}
+[data-theme="mint"] .btn-calculate:hover { background: linear-gradient(135deg, #169083, #35ab9c); }
+
+/* 结果区：渐变卡 + 超大数字 */
+[data-theme="mint"] .result-card {
+  border: 0;
+  background: linear-gradient(160deg, #ffffff 0%, #f4fcfb 55%, #ecf8f7 100%);
+}
+[data-theme="mint"] .result-total { padding: 18px 6px 10px; }
+[data-theme="mint"] .result-total .label { font-size: 13.5px; color: #8aa3ad; }
+[data-theme="mint"] .pension-start-label { font-size: 15px; color: #7d93a0; }
+[data-theme="mint"] .pension-start-label .person-type-text { color: var(--brand); }
+[data-theme="mint"] .pension-number {
+  font-size: 60px; font-weight: 800; letter-spacing: -2px;
+  background: linear-gradient(140deg, #0f9b8e, #47c5b4);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 6px 4px 2px;
+}
+[data-theme="mint"] .pension-number small { -webkit-text-fill-color: #7d93a0; font-size: 14px; }
+[data-theme="mint"] .lifelong-label { font-size: 13.5px; color: #9db1ba; }
+[data-theme="mint"] .recovery-line {
+  background: #fff; border: 1px solid #e3f4f2; border-radius: 14px;
+  font-size: 13.5px; color: #6e8792; padding: 12px 16px; margin-top: 16px;
+  box-shadow: 0 3px 10px rgba(23, 169, 154, .05);
+}
+[data-theme="mint"] .recovery-line b { color: var(--brand); font-size: 17px; }
+[data-theme="mint"] .benefit-comparison-tip {
+  background: #eefaf4; border: 0; border-radius: 14px; color: #2f9375;
+  font-size: 13px; text-align: left; line-height: 1.8;
+}
+
+/* 明细宫格 */
+[data-theme="mint"] .pension-details { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+[data-theme="mint"] .pension-detail-item {
+  background: #fff; border: 1px solid #eef6f7; border-radius: 14px; padding: 14px 10px;
+  text-align: left;
+}
+[data-theme="mint"] .pension-detail-item .k { font-size: 12px; color: #9db1ba; }
+[data-theme="mint"] .pension-detail-item .v { font-size: 22px; color: var(--ink); font-weight: 700; }
+
+[data-theme="mint"] .pension-cost-detail {
+  font-size: 12.5px; line-height: 2; color: #7d93a0; border-top: 1px dashed #dceeee;
+  padding-top: 14px;
+}
+[data-theme="mint"] .comparison-table-wrapper { border-radius: 14px; border-color: #eaf3f4; }
+[data-theme="mint"] .comparison-table th { background: #f4fafa; color: #5b7280; font-size: 12.5px; }
+[data-theme="mint"] .comparison-table td.best { background: #eefaf4; color: #1a9c7e; }
+[data-theme="mint"] .footer { font-size: 11.5px; color: #b3c4cb; }
+
+/* 卡片标题对齐修正：色条居左、标题跟随、备注靠右 */
+[data-theme="mint"] .card-title { justify-content: flex-start; }
+[data-theme="mint"] .card-title .result-title-note,
+[data-theme="mint"] .card-title .policy-toggle { margin-left: auto; }

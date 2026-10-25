@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="mint">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="theme-color" content="#17a99a" />
+<meta name="description" content="贺州社保规划 — 企业职工、灵活就业人员、城乡居民养老保险缴费与待遇测算" />
+<title>贺州 · 社保规划 | 养老待遇测算器</title>
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="stylesheet" href="assets/style.css" />
+<link rel="stylesheet" href="assets/themes.css" />
+</head>
+<body>
+<div class="container">
+
+
+  <!-- ============ 页头 ============ -->
+  <header class="header">
+    <div class="brand-row">贺州市社会保险 · 便民服务</div>
+    <h1>贺州<span class="dot">·</span>社保规划</h1>
+    <div class="subtitle">企业职工、灵活就业人员和城乡居民养老保险缴交和待遇测算</div>
+    <div class="meta" id="headerMeta">测算基准日 2026年8月 · 数据口径以社保经办机构核定为准</div>
+  </header>
+
+  <!-- ============ 险种切换 ============ -->
+  <div class="insurance-mode-tabs" role="tablist">
+    <button class="mode-tab active" id="tabWorker" data-mode="worker" role="tab">企业职工 / 灵活就业</button>
+    <button class="mode-tab" id="tabResident" data-mode="resident" role="tab">城乡居民</button>
+  </div>
+
+  <!-- ============ 一、基本信息 ============ -->
+  <section id="secBase" class="card">
+    <div class="card-title">个人基本信息</div>
+
+    <div class="form-grid">
+      <div class="form-group worker-only" id="fgPersonType">
+        <label>人员类型<span class="required">*</span></label>
+        <select id="personType"></select>
+        <div class="error">请选择人员类型</div>
+      </div>
+
+      <div class="form-group" id="fgBirth">
+        <label>出生年月<span class="required">*</span></label>
+        <div class="field-row">
+          <select id="birthYear"></select><span class="unit">年</span>
+          <select id="birthMonth"></select><span class="unit">月</span>
+        </div>
+        <div class="error">请选择出生年月</div>
+      </div>
+
+      <!-- 职工 -->
+      <div class="form-group worker-only">
+        <label>预计退休年龄（岁）</label>
+        <input type="number" id="manualAge" placeholder="留空由系统按政策自动计算" step="0.1" inputmode="decimal" />
+        <div class="hint" id="retireAgeHint">如需弹性退休（提前/延迟最多3年），可填写弹性退休年龄。</div>
+      </div>
+
+      <div class="form-group worker-only">
+        <label>历史已缴费月数</label>
+        <input type="number" id="paidMonths" placeholder="请输入已缴费月份数" min="0" max="600" step="1" value="0" />
+        <div class="error">请输入 0—600 之间的整月数</div>
+        <div class="hint">可登录广西人社APP、电子社保卡、支付宝等获取个人社保权益单查询</div>
+      </div>
+
+      <div class="form-group worker-only">
+        <label>社保个人账户余额（元）</label>
+        <input type="text" id="accountBalance" placeholder="请输入个人账户余额" inputmode="decimal" value="0" />
+        <div class="hint">同上，见个人社保权益单「个人账户储存额」</div>
+      </div>
+
+      <div class="form-group worker-only">
+        <label>视同缴费月数</label>
+        <input type="text" id="deemedMonths" placeholder="不了解可不填，如 98 或 86+12" inputmode="text" />
+        <div class="hint">视同缴费月数 + 建账前实际缴费月数，例如「98」或「86+12」</div>
+      </div>
+
+      <div class="form-group worker-only">
+        <label>历史缴费指数</label>
+        <input type="number" id="historyIndex" placeholder="不了解可不填，系统自动估算" min="0.6" max="3" step="0.001" />
+        <div class="hint">历史月缴费工资 ÷ 历史社平工资的平均值，按最低档缴约 0.6，按社平缴约 1.0（0.6~3.0）</div>
+      </div>
+
+      <div class="form-group worker-only">
+        <label>最低缴费年限</label>
+        <input type="text" id="minYears" readonly placeholder="自动计算" />
+        <div class="hint">2030 年起逐年递增，2039 年及以后固定 20 年</div>
+      </div>
+
+      <div class="form-group worker-only">
+        <label>预计可申领养老金时间</label>
+        <input type="text" id="retireDateText" readonly placeholder="填写出生年月后自动计算" />
+        <div class="hint" id="retireDateHint">根据当前缴费情况与最低缴费年限自动计算</div>
+      </div>
+
+      <!-- 居民 -->
+      <div class="form-group resident-only" style="display:none">
+        <label>已缴城居保年数</label>
+        <input type="number" id="resPaidYears" placeholder="请输入已缴费年数" min="0" max="60" step="1" value="0" />
+        <div class="hint">可登录广西人社APP、电子社保卡等查询个人社保权益单</div>
+      </div>
+
+      <div class="form-group resident-only" style="display:none">
+        <label>城居保个人账户余额（元）</label>
+        <input type="text" id="resBalance" placeholder="请输入账户余额" inputmode="decimal" value="0" />
+        <div class="hint">含个人缴费、政府补贴及利息累计</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 二、缴费信息（职工） ============ -->
+  <section id="secPay" class="card worker-only">
+    <div class="card-title">缴费信息</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>月缴费工资（元）<span class="required">*</span></label>
+        <input type="text" id="monthlySalary" inputmode="decimal" />
+        <div class="hint" id="salaryHint"></div>
+      </div>
+
+      <div class="form-group">
+        <label>缴费方案</label>
+        <select id="workerPlan">
+          <option value="pay_to_retire">从现在起缴至退休</option>
+          <option value="pay_to_min">仅缴至最低缴费年限后停缴</option>
+          <option value="custom">自定义缴费年限</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="fgCustomYears" style="display:none">
+        <label>自定义缴费年限</label>
+        <select id="customYears"></select>
+        <div class="hint">区间为「补足最低缴费年限所需年数 ~ 距退休剩余年数」</div>
+      </div>
+
+      <div class="form-group">
+        <label>本月缴费金额（元）</label>
+        <input type="text" id="monthContribution" readonly />
+        <div class="hint" id="monthContribHint">按人员类型与月缴费工资自动计算</div>
+      </div>
+
+      <div class="form-group">
+        <label>全年预计缴费金额（元）</label>
+        <input type="text" id="yearContribution" readonly />
+      </div>
+
+      <div class="form-group">
+        <label>预计后续缴费总额（元）</label>
+        <input type="text" id="totalContribution" readonly />
+      </div>
+    </div>
+
+    <div class="advanced-toggle-row">
+      <button class="btn-toggle-advanced" data-toggle="advancedWorker">+ 显示高级选项</button>
+      <div class="advanced-options" id="advancedWorker">
+        <div class="advanced-inline-desc">
+          重要提示：本测算工具内置默认参数，系参照历年统计数据的平均值设定，结果仅为估算，不构成待遇承诺，亦不代表官方发布数据。修改任一预设参数均可能导致结果变化，普通用户建议采用默认参数。
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>缴费工资指数</label>
+            <input type="number" id="currentIndex" placeholder="默认按缴费工资自动折算" step="0.01" min="0.6" max="3" />
+            <div class="hint">范围 0.6~3.0，与月缴费工资联动</div>
+          </div>
+          <div class="form-group">
+            <label>上年度在岗职工月平均工资（元）</label>
+            <input type="number" id="lastYearAvgSalary" step="1" />
+            <div class="hint">广西上年度社平工资，影响基础养老金</div>
+          </div>
+          <div class="form-group">
+            <label>个人账户记账利率（%）</label>
+            <input type="number" id="accountRate" step="0.1" min="0" max="8" />
+            <div class="hint">默认近年记账利率平均值，范围 0~8%</div>
+          </div>
+          <div class="form-group">
+            <label>工资增长率（%）</label>
+            <input type="number" id="salaryGrowthRate" step="0.1" min="0" max="8" />
+            <div class="hint">社平工资年增长率，范围 0~8%</div>
+          </div>
+          <div class="form-group">
+            <label>银行存款利率（%）</label>
+            <input type="number" id="bankRate" step="0.1" min="0" max="10" />
+            <div class="hint">按一年期定期存款利率，用于「回本」测算</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-calculate" id="btnCalcWorker">开始测算</button>
+      <button class="btn btn-reset" id="btnResetWorker">重置</button>
+    </div>
+  </section>
+
+  <!-- ============ 二、缴费信息（居民） ============ -->
+  <section class="card resident-only" id="cardResidentPay" style="display:none">
+    <div class="card-title">缴费信息（城乡居民养老保险）</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>缴费档次（元/年）<span class="required">*</span></label>
+        <select id="resTier"></select>
+        <div class="hint" id="resTierHint">广西分 15 档，按年缴费，多缴多得</div>
+      </div>
+
+      <div class="form-group">
+        <label>缴费方案</label>
+        <select id="resPlan">
+          <option value="pay_to_60">每年缴费直至 60 周岁</option>
+          <option value="pay_to_15">累计缴满 15 年后停缴</option>
+          <option value="custom">自定义缴费年限</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="fgResCustomYears" style="display:none">
+        <label>自定义缴费年限（年）</label>
+        <select id="resCustomYears"></select>
+      </div>
+
+      <div class="form-group">
+        <label>今年档次对应政府补贴（元）</label>
+        <input type="text" id="resSubsidy" readonly />
+        <div class="hint">仅当年正常缴费享受补贴，补缴不补贴</div>
+      </div>
+
+      <div class="form-group">
+        <label>预计后续个人缴费总额（元）</label>
+        <input type="text" id="resTotalPay" readonly />
+      </div>
+
+      <div class="form-group">
+        <label>预计政府补贴总额（元）</label>
+        <input type="text" id="resTotalSubsidy" readonly />
+      </div>
+    </div>
+
+    <!-- 补缴 -->
+    <div class="advanced-toggle-row">
+      <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:600;color:#334155">
+        <input type="checkbox" id="backpayEnabled" style="width:auto;margin:0" />
+        我需要补缴以前年度
+      </label>
+      <div class="hint" style="margin-top:6px">
+        存在以前年度未缴费的，可在此申报补缴；补缴年数计入缴费年限，但不享受政府补贴。各区间最高补缴档次：2019—2025 年 6000 元/年、2014—2018 年 2000 元/年、2011—2013 年 1000 元/年。
+      </div>
+      <div class="backpay-fields-grid form-grid" id="backpayGrid" style="display:none;margin-top:14px"></div>
+    </div>
+
+    <!-- 调档 -->
+    <div class="advanced-toggle-row">
+      <div style="font-size:14px;font-weight:600;color:#334155">未来缴费档次调整（选填）</div>
+      <div class="hint">默认每年均按上方档次缴费；如计划中途变更，可添加调整项</div>
+      <div id="tierChangeList" style="margin-top:10px"></div>
+      <button class="btn btn-sm btn-ghost" id="btnAddTierChange" style="margin-top:8px">+ 添加调整</button>
+    </div>
+
+    <div class="advanced-toggle-row">
+      <button class="btn-toggle-advanced" data-toggle="advancedResident">+ 显示高级选项</button>
+      <div class="advanced-options" id="advancedResident">
+        <div class="advanced-inline-desc">
+          重要提示：以下参数为估算所设，修改后结果会变化，仅供参考，不构成待遇承诺。
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>当地基础养老金标准（元/月）</label>
+            <input type="number" id="resBasicPension" step="1" />
+            <div class="hint">默认广西标准 186 元/月，可按贺州实际标准调整</div>
+          </div>
+          <div class="form-group">
+            <label>个人账户记账利率（%）</label>
+            <input type="number" id="resAccountRate" step="0.1" min="0" max="8" />
+            <div class="hint">范围 0~8%</div>
+          </div>
+          <div class="form-group">
+            <label>年限基础养老金（元/年）</label>
+            <input type="number" id="resYearlyBonus" step="1" min="0" />
+            <div class="hint">累计缴费超 15 年，每多缴 1 年每月增发</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-calculate" id="btnCalcResident">开始测算</button>
+      <button class="btn btn-reset" id="btnResetResident">重置</button>
+    </div>
+  </section>
+
+  <!-- ============ 三、测算结果 ============ -->
+  <section id="secResult" class="card result-card">
+    <div class="card-title">
+      <span>社保规划测算结果</span>
+      <span class="result-title-note">仅供参考，实际以退休当年社保经办机构核定为准</span>
+    </div>
+
+    <div id="resultEmpty" class="empty-state">
+      <div class="big">📋</div>
+      <div>填写左侧信息后点击「开始测算」，即可查看养老金预估结果</div>
+    </div>
+
+    <div id="resultBody" style="display:none">
+      <div class="result-total">
+        <div class="label">按方案计划缴纳养老保险，满足领取条件后，预计</div>
+        <div class="pension-start-label">
+          <b id="rRetireDate" style="color:#1e40af">——</b> 起可领养老金约
+        </div>
+        <div>
+          <span class="pension-number" id="rPension">0</span><small style="font-size:18px;font-weight:600">元/月</small>
+        </div>
+        <div class="lifelong-label">终身按月准时到账（可增长、可持续）</div>
+        <div class="recovery-line">
+          累计投入 <b id="rInvest">0</b> 元，约 <b id="rRecover">0</b><span id="rRecoverUnit"> 个月</span>收回成本
+        </div>
+        <div id="rCompareBank" class="benefit-comparison-tip" style="display:none"></div>
+      </div>
+
+      <div class="pension-details">
+        <div class="pension-detail-item"><div class="k">基础养老金</div><div class="v" id="rBasic">0<small>元</small></div></div>
+        <div class="pension-detail-item"><div class="k">个人账户养老金</div><div class="v" id="rAccount">0<small>元</small></div></div>
+        <div class="pension-detail-item"><div class="k">过渡性养老金</div><div class="v" id="rTrans">0<small>元</small></div></div>
+        <div class="pension-detail-item"><div class="k">平均缴费工资指数</div><div class="v" id="rIndex">0</div></div>
+      </div>
+
+      <div class="pension-cost-detail" id="rDetail"></div>
+    </div>
+  </section>
+
+  <!-- ============ 四、方案对比 ============ -->
+  <section id="secCompare" class="card">
+    <div class="card-title"><span>方案管理与对比</span></div>
+    <div class="plan-tabs-container">
+      <div class="plan-tabs" id="planTabs"></div>
+      <button class="btn btn-sm btn-add-plan" id="btnAddPlan">+ 保存为新方案</button>
+      <button class="btn btn-sm btn-ghost" id="btnClearPlans">清空方案</button>
+    </div>
+    <div class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>方案名称</th><th>类型</th><th>缴费方案</th><th>月缴费</th>
+            <th>年均缴费（元）</th><th>总投入（元）</th><th>预计月养老金</th><th>回本月数</th>
+          </tr>
+        </thead>
+        <tbody id="compareBody">
+          <tr><td colspan="8" class="adjacent-empty">暂无已保存方案，测算后可点击「保存为新方案」进行多方案对比</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 五、政策说明 ============ -->
+  <section id="secPolicy" class="card">
+    <div class="card-title policy-title-row" id="policyTitleRow">
+      <span>政策说明</span>
+      <span class="policy-toggle" id="policyToggle">+</span>
+    </div>
+    <div id="policyContent" style="display:none">
+      <div class="policy-section">
+        <h4>企业职工 / 灵活就业 测算规则</h4>
+        <ul>
+          <li>基础养老金 = 退休时全区上年度城镇单位在岗职工月平均工资 ×［（1 + 本人平均缴费工资指数）÷2］× 缴费年限 × 1%</li>
+          <li>个人账户养老金 = 个人账户累计储存额 ÷ 本人退休年龄相对应的计发月数</li>
+          <li>过渡性养老金 = 退休时上年度社平工资 × 本人平均缴费工资指数 ×（视同缴费年限 + 建账前实际缴费年限）× 1.4%</li>
+          <li>缴费基数：按本人月缴费工资与社平工资之比确定，区间为社平工资的 <span id="pFloor">60</span>%~<span id="pCeil">300</span>%，未填写时默认取下限</li>
+          <li>最低缴费年限：2030 年 1 月 1 日起逐年延长，每年增加 0.5 年，从 15 年逐步提高至 20 年（2039 年及以后固定 20 年）</li>
+          <li>延迟退休：自 2025 年 1 月起按出生年月逐月延后，男职工、女干部（管理技术岗）每 4 个月延 1 个月，女工人每 2 个月延 1 个月，最多延迟 3 年</li>
+          <li>弹性退休：可在新法定退休年龄前后 3 年区间内自行选择（不得低于原法定退休年龄），提前领取按「计发月数增加」、延迟领取按「计发月数减少」计算</li>
+          <li>个人账户记账利率默认 <span id="pAcctRate">2.5</span>%，社平工资增长率默认 <span id="pGrowth">2.0</span>%，可在高级选项中调整</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h4>城乡居民基本养老保险 测算规则</h4>
+        <ul>
+          <li>月养老待遇 = 基础养老金 + 年限加发养老金 + 个人账户养老金</li>
+          <li>个人账户养老金 =（个人缴费 + 政府补贴 + 利息）÷ <span id="pPayout">139</span></li>
+          <li>申领条件：年满 60 周岁（男女一致）、累计缴费满 15 年；距 60 周岁不足 15 年的，可补缴至满 15 年，补缴年份不享受政府补贴</li>
+          <li>基础养老金默认 <span id="pResBasic">186</span> 元/月，贺州各县（区）可在自治区标准基础上上浮，可在高级选项中修改</li>
+          <li>年限基础养老金：累计缴费年限超过 15 年的，每多缴 1 年每月加发 <span id="pBonus">4</span> 元</li>
+          <li>个人账户按年复利记账：每年入账额 = 当年档次缴费 + 当年政府补贴，按记账利率滚存至 60 周岁</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h4>广西城乡居民养老保险缴费档次与政府补贴对应表（元/年）</h4>
+        <div class="comparison-table-wrapper" style="max-width:520px">
+          <table class="comparison-table">
+            <thead><tr><th>缴费档次</th><th>政府补贴</th><th>缴费档次</th><th>政府补贴</th></tr></thead>
+            <tbody id="policyTierTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="policy-section">
+        <h4>数据与隐私说明</h4>
+        <ul>
+          <li>本工具为纯前端页面，所有测算在您的设备本地完成，<b>出生年月、缴费月数、账户余额等信息均不会上传、不存储、不留痕</b></li>
+          <li>页面不采集手机号、身份证号、姓名等个人身份信息，关闭页面即清空</li>
+          <li>测算结果依据现行政策与下方参数估算，仅作缴费规划参考，<b>不构成对社会保险待遇的承诺或保证</b>，最终待遇以退休时社保经办机构核定为准</li>
+          <li>各项默认参数（社平工资、缴费档次、基础养老金标准、记账利率等）由经办机构按年度维护，如与最新政策不一致，以最新政策文件为准</li>
+        </ul>
+      </div>
+
+      <div class="policy-contact" id="policyContact"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="gov-badge">政务服务</div>
+    <div>本测算工具仅供便民参考，不构成任何承诺或保证</div>
+    <div id="footerOrg">贺州市社会保险事业管理中心 · 便民服务</div>
+    <div style="margin-top:6px;font-size:11.5px;color:#b0b8c4">测算口径参照广西同类便民测算服务整理，参数由本地经办机构维护</div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <h3 id="modalTitle">提示</h3>
+    <p id="modalText"></p>
+    <div class="btn-row"><button class="btn btn-primary" id="modalOk">知道了</button></div>
+  </div>
+</div>
+
+<script src="assets/engine.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
