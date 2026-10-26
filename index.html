@@ -198,7 +198,7 @@
       <div class="form-group">
         <label>缴费档次（元/年）<span class="required">*</span></label>
         <select id="resTier"></select>
-        <div class="hint" id="resTierHint">广西分 15 档，按年缴费，多缴多得</div>
+        <div class="hint" id="resTierHint">贺州分 16 档，按年缴费，多缴多得</div>
       </div>
 
       <div class="form-group">
@@ -262,7 +262,7 @@
           <div class="form-group">
             <label>当地基础养老金标准（元/月）</label>
             <input type="number" id="resBasicPension" step="1" />
-            <div class="hint">默认广西标准 186 元/月，可按贺州实际标准调整</div>
+            <div class="hint">默认贺州现行标准 206 元/月，各县（区）可在此基础上上浮</div>
           </div>
           <div class="form-group">
             <label>个人账户记账利率（%）</label>
@@ -373,9 +373,10 @@
           <li>月养老待遇 = 基础养老金 + 年限加发养老金 + 个人账户养老金</li>
           <li>个人账户养老金 =（个人缴费 + 政府补贴 + 利息）÷ <span id="pPayout">139</span></li>
           <li>申领条件：年满 60 周岁（男女一致）、累计缴费满 15 年；距 60 周岁不足 15 年的，可补缴至满 15 年，补缴年份不享受政府补贴</li>
-          <li>基础养老金默认 <span id="pResBasic">186</span> 元/月，贺州各县（区）可在自治区标准基础上上浮，可在高级选项中修改</li>
-          <li>年限基础养老金：累计缴费年限超过 15 年的，每多缴 1 年每月加发 <span id="pBonus">4</span> 元</li>
+          <li>基础养老金默认 <span id="pResBasic">206</span> 元/月（贺州现行标准），各县（区）可在此基础上上浮，可在高级选项中修改</li>
+          <li>年限基础养老金：累计缴费年限超过 15 年的，每多缴 1 年每月加发 <span id="pBonus">2</span> 元</li>
           <li>个人账户按年复利记账：每年入账额 = 当年档次缴费 + 当年政府补贴，按记账利率滚存至 60 周岁</li>
+          <li>测算依据：自治区人民政府办公厅《桂政办发〔2014〕70 号》、自治区人社厅与财政厅《桂人社规〔2018〕22 号》；参数已与《206 元城乡居民养老保险各缴费档次缴满 15—30 年所得待遇测算表》逐格核定比对</li>
         </ul>
       </div>
 

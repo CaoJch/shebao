@@ -71,14 +71,15 @@
     CFG.resident.tiers.forEach(function (t, i) {
       var o = document.createElement('option');
       o.value = t;
-      o.textContent = t + ' 元/年（补贴 ' + CFG.resident.subsidies[i] + ' 元）';
+      o.textContent = t + ' 元/年（补贴 ' + CFG.resident.subsidies[i] + ' 元）' +
+        (t === 100 ? ' · 困难群体代缴档' : '');
       tierSel.appendChild(o);
     });
     tierSel.value = CFG.resident.defaultTier;
     $('resBasicPension').value = CFG.resident.basicPension;
     $('resAccountRate').value = CFG.resident.accountRate;
     $('resYearlyBonus').value = CFG.resident.yearlyBonus;
-    $('resTierHint').textContent = '广西现行 ' + CFG.resident.tiers.length + ' 档（' +
+    $('resTierHint').textContent = '贺州现行 ' + CFG.resident.tiers.length + ' 档（' +
       CFG.resident.tiers[0] + '~' + CFG.resident.tiers[CFG.resident.tiers.length - 1] + ' 元/年），按年缴费，多缴多得';
 
     // 补缴区
@@ -459,7 +460,7 @@
     row.className = 'tier-change-row';
     var opts = '', topts = '';
     for (var y = base; y <= base + 40; y++) opts += '<option value="' + y + '"' + (y === year ? ' selected' : '') + '>' + y + ' 年起</option>';
-    CFG.resident.tiers.forEach(function (t) { topts += '<option value="' + t + '"' + (t === (tier || CFG.resident.defaultTier) ? ' selected' : '') + '>' + t + ' 元/年</option>'; });
+    CFG.resident.tiers.forEach(function (t) { topts += '<option value="' + t + '"' + (t === (tier || CFG.resident.defaultTier) ? ' selected' : '') + '>' + t + ' 元/年' + (t === 100 ? ' · 困难群体代缴档' : '') + '</option>'; });
     row.innerHTML = '<select class="tier-change-year">' + opts + '</select>' +
       '<select class="tier-change-tier">' + topts + '</select>' +
       '<button class="btn-tier-change-remove" title="删除">×</button>';
