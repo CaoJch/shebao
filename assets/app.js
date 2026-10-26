@@ -561,7 +561,7 @@
     $('resultEmpty').style.display = 'none';
     $('resultBody').style.display = 'block';
 
-    $('rRetireDate').textContent = U.fmtYYYYMM(r.retireDate);
+    $('rRetireDate').textContent = U.fmtYYYYMM(U.addMonths(r.retireDate, 1));
     $('rPension').textContent = U.fmtInt(r.totalPension);
     $('rInvest').textContent = U.fmtInt(r.totalInvest);
     var rm = r.recoverMonths;
