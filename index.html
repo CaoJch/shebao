@@ -7,8 +7,477 @@
 <meta name="description" content="贺州社保规划 — 企业职工、灵活就业人员、城乡居民养老保险缴费与待遇测算" />
 <title>贺州 · 社保规划 | 养老待遇测算器</title>
 <link rel="icon" type="image/png" href="favicon.png" />
-<link rel="stylesheet" href="assets/style.css" />
-<link rel="stylesheet" href="assets/themes.css" />
+<style>
+/* ============================================================
+   贺州 · 社保规划  —  样式文件
+   配色沿用政务蓝，主色 #2468dd
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --brand: #2468dd;
+  --brand-2: #3478e8;
+  --ink: #1e293b;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --bg: #f5f7fa;
+  --green: #36a35c;
+  --red: #ff4d4f;
+  --amber: #fa8c16;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: var(--bg);
+  color: #475569;
+  line-height: 1.6;
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 40px; }
+
+/* ---------- 头部 ---------- */
+.header {
+  background: linear-gradient(135deg, #2468dd, #3478e8);
+  color: #fff;
+  padding: 32px 40px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 18px rgba(36, 104, 221, .2);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::after {
+  content: "";
+  position: absolute; right: -60px; top: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+}
+.header .brand-row {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 13px; letter-spacing: 3px; opacity: .8;
+  border: 1px solid rgba(255,255,255,.35);
+  padding: 3px 12px; border-radius: 20px; margin-bottom: 12px;
+}
+.header h1 { font-size: 38px; font-weight: 700; letter-spacing: 1px; line-height: 1.3; }
+.header h1 span.dot { opacity: .5; margin: 0 6px; }
+.header .subtitle { font-size: 16px; opacity: .9; margin-top: 8px; font-weight: 400; }
+.header .meta { font-size: 12px; opacity: .7; margin-top: 10px; }
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .06);
+  border: 1px solid #eef2f7;
+}
+.card-title {
+  font-size: 17px; font-weight: 700; color: var(--ink);
+  margin-bottom: 16px; padding-left: 10px;
+  border-left: 4px solid var(--brand); line-height: 1.2;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ---------- 险种切换 ---------- */
+.insurance-mode-tabs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  background: #fff; border-radius: 12px; padding: 6px;
+  margin-bottom: 18px; border: 1px solid #eef2f7;
+}
+.mode-tab {
+  border: 0; background: transparent; padding: 12px 8px; border-radius: 9px;
+  font-size: 15px; font-weight: 600; color: var(--muted); cursor: pointer;
+  font-family: inherit; transition: .2s;
+}
+.mode-tab.active { background: var(--brand); color: #fff; box-shadow: 0 3px 10px rgba(36,104,221,.25); }
+.mode-tab:not(.active):hover { background: #f1f5f9; color: var(--brand); }
+
+/* ---------- 表单 ---------- */
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; }
+.form-grid.one { grid-template-columns: 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.form-group label { font-size: 14px; font-weight: 600; color: #334155; }
+.form-group .required { color: var(--red); margin-left: 2px; }
+
+input[type="text"], input[type="number"], select, input[type="month"] {
+  width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 8px;
+  font-size: 15px; font-family: inherit; color: var(--ink); background: #fff;
+  transition: border-color .2s, box-shadow .2s;
+}
+input:focus, select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(36,104,221,.12); }
+input[readonly] { background: #f8fafc; color: var(--brand); font-weight: 600; cursor: default; }
+input::placeholder { color: #94a3b8; }
+select:disabled { background: #f8fafc; color: #94a3b8; }
+
+.hint { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+.error { display: none; font-size: 12px; color: var(--red); }
+.form-group.invalid .error { display: block; }
+.form-group.invalid input, .form-group.invalid select { border-color: var(--red); }
+
+.field-row { display: flex; gap: 8px; align-items: center; }
+.field-row select, .field-row input { flex: 1; }
+.field-row .unit { color: var(--muted); font-size: 14px; }
+
+/* ---------- 按钮 ---------- */
+.btn {
+  border: 0; border-radius: 9px; padding: 11px 22px; font-size: 15px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: .2s; white-space: nowrap;
+}
+.btn-calculate { background: var(--green); color: #fff; }
+.btn-calculate:hover { background: #2d8a4e; box-shadow: 0 4px 12px rgba(54,163,92,.25); transform: translateY(-1px); }
+.btn-primary { background: var(--brand); color: #fff; }
+.btn-primary:hover { background: #1f57bd; }
+.btn-reset { background: #fff; color: var(--red); border: 1px solid #ffccc7; }
+.btn-reset:hover { background: #fff1f0; }
+.btn-ghost { background: #f1f5f9; color: #334155; }
+.btn-ghost:hover { background: #e2e8f0; }
+.btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 7px; }
+.btn-block { width: 100%; }
+
+.btn-row { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.btn-row .btn-calculate { flex: 1; min-width: 200px; padding: 14px; font-size: 16px; }
+
+/* ---------- 高级选项 ---------- */
+.advanced-toggle-row {
+  margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line);
+}
+.btn-toggle-advanced {
+  background: none; border: 0; color: var(--brand); font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit; padding: 0;
+}
+.advanced-options { margin-top: 16px; display: none; }
+.advanced-options.open { display: block; }
+.advanced-inline-desc {
+  background: #fff7e6; border: 1px solid #ffe0a3; color: #8a5a00;
+  font-size: 12.5px; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; line-height: 1.7;
+}
+
+/* ---------- 结果区 ---------- */
+.result-card { border: 1px solid #e6eefc; }
+.result-title-note { font-size: 12.5px; color: #94a3b8; font-weight: 400; }
+
+.result-total { text-align: center; padding: 26px 16px 22px; }
+.result-total .label { font-size: 16px; color: var(--muted); }
+.result-total .pension-start-label { font-size: 21px; color: #334155; line-height: 1.8; }
+.result-total .pension-start-label .person-type-text { color: #1e40af; font-weight: 700; }
+.result-total .lifelong-label { font-size: 20px; color: #334155; }
+.result-total .recovery-label { color: var(--muted); }
+
+.pension-number {
+  display: inline-block; font-size: 54px; font-weight: 800; color: var(--brand);
+  line-height: 1.2; margin: 8px 6px; letter-spacing: -1px;
+}
+.pension-number small { font-size: 18px; font-weight: 600; margin-left: 4px; }
+
+.recovery-line {
+  margin-top: 14px; font-size: 15px; color: #334155;
+  background: #f0f7ff; border-radius: 10px; padding: 12px 18px; display: inline-block;
+}
+.recovery-line b { color: var(--brand); font-size: 18px; }
+
+.pension-details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+.pension-detail-item {
+  background: #f8fafc; border: 1px solid #eef2f7; border-radius: 10px; padding: 14px 12px; text-align: center;
+}
+.pension-detail-item .k { font-size: 13px; color: var(--muted); }
+.pension-detail-item .v { font-size: 21px; font-weight: 700; color: var(--ink); margin-top: 4px; }
+.pension-detail-item .v small { font-size: 12px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
+
+.pension-cost-detail {
+  font-size: 13px; color: var(--muted); line-height: 1.8;
+  border-top: 1px solid #f1f5f9; padding: 12px 4px 0; margin-top: 14px;
+}
+.benefit-comparison-tip {
+  background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px 15px;
+  border-radius: 8px; margin-top: 14px; font-size: 14px; color: #2d8a4e; text-align: center;
+}
+.empty-state {
+  text-align: center; padding: 48px 20px; color: #94a3b8;
+}
+.empty-state .big { font-size: 40px; margin-bottom: 6px; }
+
+/* ---------- 方案管理 ---------- */
+.plan-tabs-container { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.plan-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.plan-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 10px 8px 14px; border-radius: 8px; background: #f1f5f9;
+  font-size: 14px; color: #475569; cursor: pointer; border: 1px solid transparent;
+}
+.plan-tab.active { background: #eff6ff; border-color: #bfdbfe; color: var(--brand); font-weight: 600; }
+.plan-tab-delete {
+  border: 0; background: transparent; color: #94a3b8; cursor: pointer; font-size: 15px;
+  width: 18px; height: 18px; line-height: 1; border-radius: 50%;
+}
+.plan-tab-delete:hover { background: #fee2e2; color: var(--red); }
+.btn-add-plan { background: #eff6ff; color: var(--brand); }
+
+.comparison-table-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid var(--line); }
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 700px; }
+.comparison-table th, .comparison-table td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: center; }
+.comparison-table th { background: #f8fafc; font-weight: 600; color: #334155; }
+.comparison-table tr:last-child td { border-bottom: 0; }
+.comparison-table td.best { color: #b91c1c; font-weight: 700; background: #fff7f7; }
+.adjacent-empty { text-align: center; padding: 28px; color: #94a3b8; font-size: 14px; }
+
+/* ---------- 政策说明 ---------- */
+.policy-title-row { cursor: pointer; }
+.policy-toggle {
+  font-size: 22px; color: var(--brand); font-weight: 400; line-height: 1;
+  width: 26px; height: 26px; text-align: center; border-radius: 50%; background: #eff6ff;
+}
+.policy-section { margin-bottom: 18px; }
+.policy-section h4 { font-size: 15px; color: #1e40af; margin-bottom: 10px; }
+.policy-section ul { padding-left: 20px; }
+.policy-section li { font-size: 14px; color: #475569; margin-bottom: 7px; line-height: 1.8; }
+.policy-section table { font-size: 13px; }
+.policy-contact { font-size: 13.5px; color: #555; margin-top: 12px; }
+
+/* ---------- 底部 ---------- */
+.footer { text-align: center; color: #94a3b8; font-size: 12.5px; padding: 18px 0 6px; line-height: 1.9; }
+.gov-badge {
+  display: inline-block; padding: 2px 10px; border: 1px solid #cbd5e1; border-radius: 4px;
+  font-size: 12px; color: #64748b; margin-bottom: 8px;
+}
+
+/* ---------- 提示条 ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 40px; transform: translate(-50%, 20px);
+  background: rgba(30, 41, 59, .94); color: #fff; padding: 11px 22px; border-radius: 10px;
+  font-size: 14px; opacity: 0; pointer-events: none; transition: .25s; z-index: 99;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- 弹窗（存银行对比) ---------- */
+.modal-mask {
+  position: fixed; inset: 0; background: rgba(15,23,42,.45); display: none;
+  align-items: center; justify-content: center; z-index: 100; padding: 20px;
+}
+.modal-mask.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 14px; max-width: 460px; width: 100%; padding: 24px;
+  box-shadow: 0 20px 50px rgba(15,23,42,.25);
+}
+.modal h3 { font-size: 18px; color: var(--ink); margin-bottom: 12px; }
+.modal p { font-size: 14px; line-height: 1.9; color: #475569; }
+.modal .btn-row { margin-top: 20px; }
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 992px) {
+  .pension-details { grid-template-columns: repeat(2, 1fr); }
+  .header h1 { font-size: 32px; }
+}
+@media (max-width: 640px) {
+  .container { padding: 12px 14px 28px; }
+  .header { padding: 24px 18px; border-radius: 12px; }
+  .header h1 { font-size: 26px; }
+  .header .subtitle { font-size: 13.5px; }
+  .card { padding: 16px 15px; }
+  .form-grid { grid-template-columns: 1fr; gap: 14px; }
+  .pension-number { font-size: 42px; }
+  .pension-details { grid-template-columns: repeat(2, 1fr); }
+  .btn-row .btn-calculate { min-width: 100%; }
+  .insurance-mode-tabs { font-size: 13px; }
+  .mode-tab { font-size: 14px; padding: 10px 4px; }
+}
+
+/* ---------- 补缴 / 调档 ---------- */
+.backpay-fields-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.backpay-block {
+  border: 1px dashed #dbe4f0; border-radius: 10px; padding: 12px; background: #fbfcfe;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.backpay-block .bp-title { font-size: 13px; font-weight: 700; color: #334155; }
+.backpay-block .bp-cap { font-size: 12px; color: #94a3b8; }
+.backpay-block input, .backpay-block select { padding: 8px 10px; font-size: 14px; }
+
+.tier-change-row {
+  display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
+  margin-bottom: 8px; background: #f8fafc; border-radius: 8px; padding: 8px; border: 1px solid #eef2f7;
+}
+.tier-change-row select { padding: 8px 10px; font-size: 14px; }
+.btn-tier-change-remove {
+  border: 0; background: #fff1f0; color: var(--red); border-radius: 7px;
+  width: 34px; height: 34px; cursor: pointer; font-size: 16px; line-height: 1;
+}
+.btn-tier-change-remove:hover { background: #ffe0e0; }
+
+.plan-name-edit {
+  border: 1px solid transparent; background: transparent; font-size: 14px; font-weight: inherit;
+  color: inherit; padding: 2px 4px; border-radius: 5px; width: 110px; font-family: inherit;
+}
+.plan-name-edit:hover { border-color: #cbd5e1; background: #fff; }
+.plan-name-edit:focus { outline: none; border-color: var(--brand); background: #fff; }
+.plan-tab.active .plan-name-edit { color: var(--brand); }
+
+@media (max-width: 640px) {
+  .backpay-fields-grid { grid-template-columns: 1fr; }
+  .plan-name-edit { width: 80px; }
+}
+
+</style>
+<style>
+/* ============================================================
+   贺州 · 社保规划  —  外观皮肤：轻量小程序风
+   ------------------------------------------------------------
+   通过 <html data-theme="mint"> 启用。
+   主色集中在顶部变量，改配色只需改 --brand / --brand-2 两处，
+   渐变字与按钮会自动跟随。
+   ============================================================ */
+[data-theme="mint"] {
+  --brand: #17a99a;
+  --brand-2: #4fc3b5;
+  --ink: #17323f;
+  --muted: #7d93a0;
+  --line: #e8f1f2;
+  --bg: #f3f9fa;
+  --green: #17a99a;
+  --red: #f2705e;
+}
+[data-theme="mint"] body {
+  background:
+    radial-gradient(1200px 400px at 50% -180px, #d8f2ef 0%, rgba(243, 249, 250, 0) 70%),
+    #f3f9fa;
+  color: #5b7280;
+}
+[data-theme="mint"] .container { max-width: 720px; padding: 14px 16px 36px; }
+
+/* 头部：浅底大字，弱化色块 */
+[data-theme="mint"] .header {
+  background: transparent;
+  box-shadow: none;
+  padding: 26px 8px 6px;
+  text-align: left;
+  color: var(--ink);
+  overflow: visible;
+  border-radius: 0;
+}
+[data-theme="mint"] .header::after { display: none; }
+[data-theme="mint"] .header .brand-row {
+  border: 0; padding: 0 10px; margin-bottom: 6px;
+  color: var(--brand); font-size: 12px; letter-spacing: 1px;
+  background: rgba(23, 169, 154, .1); border-radius: 20px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+[data-theme="mint"] .header h1 {
+  font-size: 30px; letter-spacing: 0; font-weight: 800;
+  background: linear-gradient(100deg, #0f9b8e, #38b9a9 60%, #5ec9bb);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="mint"] .header h1 .dot { opacity: .35; -webkit-text-fill-color: #38b9a9; }
+[data-theme="mint"] .header .subtitle { font-size: 13.5px; color: var(--muted); opacity: 1; margin-top: 2px; }
+[data-theme="mint"] .header .meta { font-size: 11.5px; color: #a4b7c0; opacity: 1; margin-top: 6px; }
+
+/* 切换器：胶囊滑块 */
+[data-theme="mint"] .insurance-mode-tabs {
+  background: #fff; border: 1px solid #e8f1f2; border-radius: 999px;
+  padding: 5px; box-shadow: 0 4px 14px rgba(23, 169, 154, .07);
+  margin: 14px 0 16px;
+}
+[data-theme="mint"] .mode-tab {
+  border-radius: 999px; font-size: 14px; font-weight: 600; padding: 10px 6px;
+}
+[data-theme="mint"] .mode-tab.active {
+  background: linear-gradient(135deg, #1bb3a3, #45c4b5);
+  box-shadow: 0 4px 12px rgba(23, 169, 154, .3);
+}
+
+/* 卡片：大圆角、弱边线、柔和投影 */
+[data-theme="mint"] .card {
+  border-radius: 18px; border: 0; padding: 20px 18px;
+  box-shadow: 0 6px 22px rgba(21, 91, 106, .06);
+  margin-bottom: 14px;
+}
+[data-theme="mint"] .card-title {
+  border-left: 0; font-size: 16px; color: var(--ink);
+  padding-left: 0; margin-bottom: 14px; gap: 8px;
+}
+[data-theme="mint"] .card-title::before {
+  content: ""; width: 4px; height: 16px; border-radius: 2px;
+  background: linear-gradient(#1bb3a3, #6fd0c4); display: inline-block; margin-right: 2px;
+}
+
+/* 表单：浅底输入框，去掉硬边框 */
+[data-theme="mint"] input[type="text"],
+[data-theme="mint"] input[type="number"],
+[data-theme="mint"] select {
+  background: #f6fbfb; border: 1px solid transparent; border-radius: 12px;
+  padding: 12px 14px; color: var(--ink); font-size: 15px;
+}
+[data-theme="mint"] input:focus, [data-theme="mint"] select:focus {
+  background: #fff; border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(23, 169, 154, .1);
+}
+[data-theme="mint"] input[readonly] { background: #f0f7f7; color: var(--brand); }
+[data-theme="mint"] .form-group label { color: #4a6673; font-size: 13.5px; }
+
+/* 按钮：大圆角、渐变 */
+[data-theme="mint"] .btn { border-radius: 999px; }
+[data-theme="mint"] .btn-calculate {
+  background: linear-gradient(135deg, #19a795, #3fc0af);
+  box-shadow: 0 8px 20px rgba(23, 169, 154, .28);
+  font-size: 16px; letter-spacing: 1px;
+}
+[data-theme="mint"] .btn-calculate:hover { background: linear-gradient(135deg, #169083, #35ab9c); }
+
+/* 结果区：渐变卡 + 超大数字 */
+[data-theme="mint"] .result-card {
+  border: 0;
+  background: linear-gradient(160deg, #ffffff 0%, #f4fcfb 55%, #ecf8f7 100%);
+}
+[data-theme="mint"] .result-total { padding: 18px 6px 10px; }
+[data-theme="mint"] .result-total .label { font-size: 13.5px; color: #8aa3ad; }
+[data-theme="mint"] .pension-start-label { font-size: 15px; color: #7d93a0; }
+[data-theme="mint"] .pension-start-label .person-type-text { color: var(--brand); }
+[data-theme="mint"] .pension-number {
+  font-size: 60px; font-weight: 800; letter-spacing: -2px;
+  background: linear-gradient(140deg, #0f9b8e, #47c5b4);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 6px 4px 2px;
+}
+[data-theme="mint"] .pension-number small { -webkit-text-fill-color: #7d93a0; font-size: 14px; }
+[data-theme="mint"] .lifelong-label { font-size: 13.5px; color: #9db1ba; }
+[data-theme="mint"] .recovery-line {
+  background: #fff; border: 1px solid #e3f4f2; border-radius: 14px;
+  font-size: 13.5px; color: #6e8792; padding: 12px 16px; margin-top: 16px;
+  box-shadow: 0 3px 10px rgba(23, 169, 154, .05);
+}
+[data-theme="mint"] .recovery-line b { color: var(--brand); font-size: 17px; }
+[data-theme="mint"] .benefit-comparison-tip {
+  background: #eefaf4; border: 0; border-radius: 14px; color: #2f9375;
+  font-size: 13px; text-align: left; line-height: 1.8;
+}
+
+/* 明细宫格 */
+[data-theme="mint"] .pension-details { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+[data-theme="mint"] .pension-detail-item {
+  background: #fff; border: 1px solid #eef6f7; border-radius: 14px; padding: 14px 10px;
+  text-align: left;
+}
+[data-theme="mint"] .pension-detail-item .k { font-size: 12px; color: #9db1ba; }
+[data-theme="mint"] .pension-detail-item .v { font-size: 22px; color: var(--ink); font-weight: 700; }
+
+[data-theme="mint"] .pension-cost-detail {
+  font-size: 12.5px; line-height: 2; color: #7d93a0; border-top: 1px dashed #dceeee;
+  padding-top: 14px;
+}
+[data-theme="mint"] .comparison-table-wrapper { border-radius: 14px; border-color: #eaf3f4; }
+[data-theme="mint"] .comparison-table th { background: #f4fafa; color: #5b7280; font-size: 12.5px; }
+[data-theme="mint"] .comparison-table td.best { background: #eefaf4; color: #1a9c7e; }
+[data-theme="mint"] .footer { font-size: 11.5px; color: #b3c4cb; }
+
+/* 卡片标题对齐修正：色条居左、标题跟随、备注靠右 */
+[data-theme="mint"] .card-title { justify-content: flex-start; }
+[data-theme="mint"] .card-title .result-title-note,
+[data-theme="mint"] .card-title .policy-toggle { margin-left: auto; }
+
+</style>
 </head>
 <body>
 <div class="container">
@@ -422,7 +891,1393 @@
   </div>
 </div>
 
-<script src="assets/engine.js"></script>
-<script src="assets/app.js"></script>
+<script>
+/* ============================================================
+   贺州 · 社保规划  —  测算引擎  engine.js
+   ------------------------------------------------------------
+   【金额逻辑集中配置区】所有口径参数集中在 CONFIG 中，
+   后续调整金额（社平工资、缴费档次、补贴、基础养老金、利率、
+   计发月数等）只需修改本文件 CONFIG，界面与政策说明自动联动。
+   纯函数、无 DOM 依赖，可直接被小程序 / Node 复用。
+   ============================================================ */
+(function (root) {
+  'use strict';
+
+  /* ================= 一、参数配置区（改金额只改这里） ================= */
+  var CONFIG = {
+    region: {
+      city: '贺州',
+      province: '广西',
+      centerName: '贺州市社会保险事业管理中心',
+      phone: '',                      // TODO 填写实际对外咨询电话，如 '0774-12345678'；留空则不显示
+      address: '',                    // TODO 填写实际办公地址；留空则不显示
+      dataVersion: '2026年度测算口径（贺州）· 职工养老保险依据桂人社发〔2026〕32号、桂政办发〔2014〕70号、桂人社规〔2018〕22号',
+      // 是否展示"按当地实际标准执行"的地方口径提示；正式上线前请由业务科室核定各项数值
+      dataVerified: true
+    },
+
+    /* ---------- 企业职工 / 灵活就业 ---------- */
+    worker: {
+      lastYearAvgSalary: 7008,        // 上年度全区全口径城镇单位就业人员月平均工资（元/月）★可改
+                                      // 依据：桂人社发〔2026〕32号，2026年度核定指标 7008 元/月
+                                      //      上限 21024 元/月（×300%）、下限 4204.8 元/月（×60%）
+      accountRate: 2.5,               // 个人账户记账利率 %
+      salaryGrowthRate: 2.0,          // 社平工资年增长率 %
+      bankDepositRate: 1.3,           // 银行一年期定存利率 %（对比用）
+      employeeRate: 0.08,             // 企业职工个人缴费比例（进个人账户）
+      flexibleRate: 0.20,             // 灵活就业人员缴费比例（8% 进个人账户 + 12% 统筹）
+      baseFloorRatio: 0.6,            // 缴费基数下限 = 社平 × 0.6
+      baseCeilRatio: 3.0,             // 缴费基数上限 = 社平 × 3.0
+      transitionalRate: 0.014,        // 过渡性养老金计发系数 1.4%
+      minYearsFloor: 15,              // 最低缴费年限起步 15 年
+      minYearsCap: 20,                // 2039 年起封顶 20 年
+      minYearsRampStart: 2030,        // 2030 年起每年 +0.5 年
+      minYearsRampStep: 0.5,
+      maxRetireAge: 70
+    },
+
+    /* ---------- 城乡居民养老保险（贺州 16 档 · 2026 执行口径） ----------
+       政策依据：
+         · 自治区人民政府办公厅 桂政办发〔2014〕70 号
+         · 自治区人社厅、财政厅 桂人社规〔2018〕22 号
+       口径来源：贺州市《206元城乡居民养老保险各缴费档次缴满15-30年所得待遇测算表》
+       计算公式（已与该表 16 档 × 15~30 年共 256 格逐格比对，最大偏差 < 0.01 元）：
+         个人账户累积额 = (档次 + 补贴) × [((1+r)^n − 1) ÷ r] × (1+r)     r = 2.25%，年初缴费、当年计息
+         月养老金 = 个人账户累积额 ÷ 139 + 基础养老金 206 元 + 超 15 年部分每年加发 2 元
+       ------------------------------------------------------------------- */
+    resident: {
+      // 注：100 元档为重度残疾人、低保对象等缴费困难群体的政府代缴档，界面已标注；普通居民一般从 200 元起缴
+      tiers:     [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 3000, 4000, 5000, 6000],
+      subsidies: [ 30,  35,  40,  45,  60,  65,  70, 100, 120,  150,  175,  200,  200,  200,  200,  200],
+      defaultTier: 2000,
+      basicPension: 206,              // 基础养老金 元/月（贺州现行执行标准）★可改
+      accountRate: 2.25,              // 个人账户记账利率 %（年均存款利率）
+      yearlyBonus: 2,                 // 超 15 年，每多缴 1 年每月加发 元
+      payoutMonths: 139,              // 60 岁计发月数
+      minYears: 15,
+      retireAge: 60,
+      // 补缴区间：各区间最高补缴档次（元/年）
+      backpaySegments: [
+        { startYear: 2019, endYear: 2025, maxTier: 6000, label: '2019—2025年' },
+        { startYear: 2014, endYear: 2018, maxTier: 2000, label: '2014—2018年' },
+        { startYear: 2011, endYear: 2013, maxTier: 1000, label: '2011—2013年' }
+      ]
+    },
+
+    /* ---------- 人员类型 & 延迟退休规则 ---------- */
+    // originalAge 原法定退休年龄 / targetAge 目标年龄 / step 每几个月延 1 个月
+    personTypes: [
+      { key: 'male',            label: '企业职工（男）',              group: 'employee', originalAge: 60, targetAge: 63, step: 4 },
+      { key: 'female_cadre',    label: '企业职工（技术和管理岗位·女）', group: 'employee', originalAge: 55, targetAge: 58, step: 4 },
+      { key: 'female_worker',   label: '企业职工（普工岗位·女）',      group: 'employee', originalAge: 50, targetAge: 55, step: 2 },
+      { key: 'flexible_male',   label: '灵活就业人员（男）',          group: 'flexible', originalAge: 60, targetAge: 63, step: 4 },
+      { key: 'flexible_female', label: '灵活就业人员（女）',          group: 'flexible', originalAge: 55, targetAge: 58, step: 4 }
+    ],
+
+    // 个人账户养老金计发月数（退休年龄 → 月数）
+    payoutTable: {
+      40: 233, 41: 230, 42: 226, 43: 223, 44: 220, 45: 216, 46: 212, 47: 208,
+      48: 204, 49: 199, 50: 195, 51: 190, 52: 185, 53: 180, 54: 175, 55: 170,
+      56: 164, 57: 158, 58: 152, 59: 145, 60: 139, 61: 132, 62: 125, 63: 117,
+      64: 109, 65: 101, 66: 93, 67: 84, 68: 75, 69: 65, 70: 56
+    },
+
+    // 测算基准日（"今年"由它决定）；每年更新一次即可
+    baseDate: { year: 2026, month: 8 }
+  };
+
+  /* ================= 二、工具函数 ================= */
+  function round2(n) { return Math.round(n * 100) / 100; }
+  function round1(n) { return Math.round(n * 10) / 10; }
+  function clamp(v, lo, hi) { return Math.min(Math.max(v, lo), hi); }
+  function isNum(v) { return typeof v === 'number' && !isNaN(v) && isFinite(v); }
+
+  function fmtMoney(n, digits) {
+    if (!isNum(n)) n = 0;
+    digits = digits === undefined ? 2 : digits;
+    return n.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  }
+  function fmtInt(n) { return fmtMoney(Math.round(n || 0), 0); }
+
+  function makeDate(y, m) { return new Date(y, m, 1); } // m: 0-11
+  function diffMonths(a, b) { return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()); }
+  function addMonths(d, n) { var x = new Date(d.getTime()); x.setMonth(x.getMonth() + n); return x; }
+  function fmtYYYYMM(d) { return d.getFullYear() + '年' + (d.getMonth() + 1) + '月'; }
+  function ageAt(birth, d) { return diffMonths(birth, d) / 12; }
+
+  /* ================= 三、政策规则 ================= */
+  // 延迟退休年龄：自 2025.1 起，按原法定退休时间每 step 个月延 1 个月，最多延到 targetAge
+  function calcStatutoryRetire(personKey, birth) {
+    var pt = getPersonType(personKey);
+    if (!pt) return null;
+    var policyStart = makeDate(2025, 0);
+    var origDate = addMonths(birth, pt.originalAge * 12);
+    if (origDate < policyStart) {
+      return { retireDate: origDate, retireAge: pt.originalAge, originalAge: pt.originalAge, delayMonths: 0, personType: pt };
+    }
+    var monthsFromPolicyStart = diffMonths(policyStart, origDate);
+    var maxDelay = (pt.targetAge - pt.originalAge) * 12;
+    var delayMonths = Math.min(Math.ceil((monthsFromPolicyStart + 1) / pt.step), maxDelay);
+    var finalDate = addMonths(origDate, delayMonths);
+    return {
+      retireDate: finalDate,
+      retireAge: round1(ageAt(birth, finalDate)),
+      originalAge: pt.originalAge,
+      delayMonths: delayMonths,
+      personType: pt
+    };
+  }
+
+  // 最低缴费年限：≤2029 → 15；2030 起每年 +0.5；≥2039 → 20
+  function calcMinContributionYears(retireYear) {
+    var w = CONFIG.worker;
+    if (retireYear <= w.minYearsRampStart - 1) return w.minYearsFloor;
+    if (retireYear >= w.minYearsRampStart + (w.minYearsCap - w.minYearsFloor) / w.minYearsRampStep) return w.minYearsCap;
+    return round1(w.minYearsFloor + w.minYearsRampStep * (retireYear - w.minYearsRampStart + 1));
+  }
+
+  function getPaymentMonths(age) {
+    var tbl = CONFIG.payoutTable;
+    age = round1(age);
+    if (age <= 40) return 233;
+    if (age >= 70) return 56;
+    var i = Math.floor(age), frac = age - i;
+    return round1(tbl[i] - (tbl[i] - tbl[i + 1]) * frac);
+  }
+
+  // 把「缴费年限不足」折算成延后申领的月份
+  function extendForMinYears(retireDate, birth, creditedMonths, minYears, baseDate) {
+    var needMonths = Math.round(minYears * 12);
+    var monthsToRetire = Math.max(0, diffMonths(baseDate, retireDate));
+    var deficit = Math.ceil(needMonths - creditedMonths - monthsToRetire);
+    if (deficit <= 0) return { retireDate: retireDate, needsExtension: false, deficitMonths: 0 };
+    var anchor = monthsToRetire > 0 ? retireDate : baseDate;
+    return {
+      retireDate: addMonths(anchor, deficit),
+      needsExtension: true,
+      deficitMonths: deficit
+    };
+  }
+
+  // 弹性退休可选区间（月）
+  function retireAgeBounds(personKey, birth, baseDate) {
+    var st = calcStatutoryRetire(personKey, birth);
+    if (!st) return null;
+    var newMonths = diffMonths(birth, st.retireDate);
+    var curMonths = Math.max(0, diffMonths(birth, baseDate));
+    var lo = Math.max(st.originalAge * 12, newMonths - 36, curMonths);
+    var hi = Math.min(newMonths + 36, CONFIG.worker.maxRetireAge * 12);
+    if (hi < lo) hi = lo;
+    return { lo: lo, hi: hi, statutoryMonths: newMonths, currentMonths: curMonths, statutoryDate: st.retireDate };
+  }
+
+  // 统一的退休排期解析：兼顾弹性退休 + 最低缴费年限门槛逐年上涨
+  function resolveSchedule(personKey, birth, manualAge, creditedMonths, baseDate) {
+    baseDate = baseDate || makeDate(CONFIG.baseDate.year, CONFIG.baseDate.month - 1);
+    var b = retireAgeBounds(personKey, birth, baseDate);
+    if (!b) return null;
+    var hasManual = isNum(manualAge);
+    var wishMonths = hasManual ? clamp(Math.round(manualAge * 12), b.lo, b.hi) : b.statutoryMonths;
+    var wishDate = addMonths(birth, wishMonths);
+    var isEarly = wishDate < b.statutoryDate;
+    var iterate = isEarly && wishDate.getFullYear() >= CONFIG.worker.minYearsRampStart &&
+                  wishDate.getFullYear() <= CONFIG.worker.minYearsRampStart + 9;
+    var capMinYears = calcMinContributionYears(b.statutoryDate.getFullYear());
+    var minYears = iterate ? calcMinContributionYears(wishDate.getFullYear()) : capMinYears;
+
+    var candDate = wishDate, resolved = null, guard = 0;
+    while (guard++ < 60) {
+      resolved = extendForMinYears(candDate, birth, creditedMonths, minYears, baseDate);
+      if (!iterate || !resolved.needsExtension) break;
+      var next = Math.min(calcMinContributionYears(resolved.retireDate.getFullYear()), capMinYears);
+      if (next <= minYears) break;
+      candDate = resolved.retireDate;
+      minYears = next;
+    }
+    var finalMonths = diffMonths(birth, resolved.retireDate);
+    return {
+      bounds: b,
+      hasManual: hasManual,
+      clamped: hasManual && Math.round(manualAge * 12) !== wishMonths,
+      wishDate: wishDate,
+      wishAge: wishMonths / 12,
+      isEarly: isEarly,
+      retireDate: resolved.retireDate,
+      retireAge: finalMonths / 12,
+      retireAgeMonths: finalMonths,
+      minYears: minYears,
+      needsExtension: resolved.needsExtension,
+      extraMonths: resolved.deficitMonths
+    };
+  }
+
+  /* ================= 四、企业职工 / 灵活就业 测算 ================= */
+  function calcWorker(input) {
+    var w = CONFIG.worker;
+    var baseDate = input.baseDate || makeDate(CONFIG.baseDate.year, CONFIG.baseDate.month - 1);
+    var birth = makeDate(input.birthYear, input.birthMonth - 1);
+    var pt = getPersonType(input.personKey);
+    if (!pt) return null;
+
+    var paidMonths = Math.max(0, Math.round(input.paidMonths || 0));
+    var deemed = Math.max(0, Math.round(input.deemedMonths || 0));
+    var preAccount = Math.max(0, Math.round(input.preAccountMonths || 0));
+    var creditedMonths = paidMonths + deemed;
+    var creditedYears = creditedMonths / 12;
+
+    var sched = resolveSchedule(input.personKey, birth, input.manualAge, creditedMonths, baseDate);
+    var retireDate = sched.retireDate;
+    var retireAge = sched.retireAge;
+
+    // 剩余缴至退休的年数（按意愿退休日）
+    var remainYears = Math.max(0, round1(diffMonths(baseDate, addMonths(birth, Math.round(sched.wishAge * 12))) / 12));
+    var minCustomYears = Math.max(0, round1(sched.minYears - creditedYears));
+
+    var plan = input.plan || 'pay_to_retire';
+    var actualYears;
+    if (sched.needsExtension || plan === 'pay_to_min') {
+      actualYears = minCustomYears;
+    } else if (plan === 'custom') {
+      actualYears = clamp(isNum(input.customYears) ? input.customYears : remainYears, minCustomYears, remainYears);
+    } else {
+      actualYears = remainYears;
+    }
+    actualYears = round1(actualYears);
+    var actualMonths = Math.max(0, Math.round(actualYears * 12));
+    var totalYears = creditedYears + actualYears;
+
+    var monthsToRetire = diffMonths(baseDate, retireDate);
+    var prevYearAvgSalary = input.lastYearAvgSalary * Math.pow(1 + input.salaryGrowthRate / 100, monthsToRetire / 12);
+
+    // 缴费工资：不填默认社平 60%
+    var salary = isNum(input.monthlySalary) && input.monthlySalary > 0
+      ? clamp(input.monthlySalary, input.lastYearAvgSalary * w.baseFloorRatio, input.lastYearAvgSalary * w.baseCeilRatio)
+      : input.lastYearAvgSalary * w.baseFloorRatio;
+
+    var curIndex = isNum(input.currentIndex) ? clamp(input.currentIndex, w.baseFloorRatio, w.baseCeilRatio) : clamp(salary / input.lastYearAvgSalary, 0.6, 3);
+    var histIndex = isNum(input.historyIndex) ? clamp(input.historyIndex, 0.6, 3) : estimateHistoryIndex(paidMonths - preAccount, input.accountBalance);
+    if (!isNum(input.historyIndex)) histIndex = histIndex;
+
+    var isFlexible = pt.group === 'flexible';
+    var rate = isFlexible ? w.flexibleRate : w.employeeRate;
+
+    // 个人账户累计
+    var acct = accrueAccount({
+      balance: Math.max(0, input.accountBalance || 0),
+      salary: salary,
+      ratePct: input.accountRate,
+      growthPct: input.salaryGrowthRate,
+      contribMonths: actualMonths,
+      totalMonths: Math.max(actualMonths, monthsToRetire),
+      personalRate: 0.08
+    });
+
+    var paymentMonths = getPaymentMonths(retireAge);
+
+    // 平均缴费工资指数（按月加权）
+    var idxMonths = paidMonths + deemed + actualMonths;
+    var weightedIndex = idxMonths > 0
+      ? (paidMonths * histIndex + deemed * 1.0 + actualMonths * curIndex) / idxMonths
+      : curIndex;
+
+    var basicPension = prevYearAvgSalary * ((1 + weightedIndex) / 2) * totalYears * 0.01;
+    var accountPension = acct.balance / paymentMonths;
+    var transMonths = deemed + preAccount;
+    var transitionalPension = transMonths > 0
+      ? prevYearAvgSalary * weightedIndex * (transMonths / 12) * w.transitionalRate
+      : 0;
+    var totalPension = basicPension + accountPension + transitionalPension;
+
+    // 未来缴费总额（按月缴、按年涨基数）
+    var contrib = projectContribution(salary, rate, input.salaryGrowthRate, actualMonths);
+    // 前面已缴的历史个人缴费估算
+    var historyContrib = estimateWorkerHistory(paidMonths, input.accountBalance, histIndex, input.lastYearAvgSalary);
+    var totalInvest = contrib.total + historyContrib;
+
+    var bank = projectBankDeposit(salary, Math.max(input.salaryGrowthRate, input.salaryGrowthRate), w.bankDepositRate, actualMonths, w.flexibleRate);
+    var recoverMonths = monthsToRecover(totalInvest, totalPension, w.bankDepositRate);
+    var bankMonths = monthsToRecover(totalInvest, totalPension, 0);
+
+    return {
+      mode: 'worker',
+      personKey: input.personKey,
+      personLabel: pt.label,
+      isFlexible: isFlexible,
+      birthYear: input.birthYear,
+      birthMonth: input.birthMonth,
+      currentAge: Math.floor(ageAt(birth, baseDate)),
+      statutoryDate: sched.bounds.statutoryDate,
+      retireDate: retireDate,
+      retireAge: round1(retireAge),
+      minYears: sched.minYears,
+      needsExtension: sched.needsExtension,
+      extraMonths: sched.extraMonths,
+      paidMonths: paidMonths,
+      deemedMonths: deemed,
+      creditedYears: round1(creditedYears),
+      actualYears: actualYears,
+      totalYears: round1(totalYears),
+      salary: round2(salary),
+      curIndex: round2(curIndex),
+      histIndex: round1(histIndex),
+      weightedIndex: round2(weightedIndex),
+      prevYearAvgSalary: round2(prevYearAvgSalary),
+      paymentMonths: paymentMonths,
+      monthContribution: round2(salary * rate),
+      yearContribution: round2(salary * 12 * rate),
+      totalContribution: round2(contrib.total),
+      totalInvest: round2(totalInvest),
+      accountBalance: round2(acct.balance),
+      accountPrincipal: round2(acct.principal),
+      accountInterest: round2(acct.interest),
+      basicPension: round2(basicPension),
+      accountPension: round2(accountPension),
+      transitionalPension: round2(transitionalPension),
+      totalPension: round2(totalPension),
+      yearlyPension: round2(totalPension * 12),
+      recoverMonths: recoverMonths,
+      bankMonths: bankMonths,
+      bankValue: round2(bank.total),
+      rateUsed: rate
+    };
+  }
+
+  function getPersonType(key) {
+    for (var i = 0; i < CONFIG.personTypes.length; i++) if (CONFIG.personTypes[i].key === key) return CONFIG.personTypes[i];
+    return null;
+  }
+
+  // 个人账户逐年滚存（当年缴入不计当年息）
+  function accrueAccount(o) {
+    var bal = o.balance || 0, principal = o.balance || 0;
+    var monthly = o.salary, yearIn = 0, r = o.ratePct / 100, g = o.growthPct / 100;
+    var total = Math.max(o.contribMonths, o.totalMonths || 0);
+    for (var m = 0; m < total; m++) {
+      if (m < o.contribMonths) {
+        var c = monthly * o.personalRate;
+        bal += c; principal += c; yearIn += c;
+      }
+      if ((m + 1) % 12 === 0) {
+        bal = (bal - yearIn) * (1 + r) + yearIn;
+        yearIn = 0;
+        if (m < o.contribMonths) monthly *= (1 + g);
+      }
+    }
+    return { balance: bal, principal: principal, interest: Math.max(0, bal - principal) };
+  }
+
+  function projectContribution(salary, rate, growthPct, months) {
+    if (!(months > 0)) return { total: 0, yearly: [] };
+    var total = 0, monthly = salary, yearly = [], ySum = 0, g = growthPct / 100;
+    for (var m = 0; m < months; m++) {
+      var c = monthly * rate;
+      total += c; ySum += c;
+      if ((m + 1) % 12 === 0) {
+        yearly.push({ year: CONFIG.baseDate.year + yearly.length, amount: round2(ySum), base: round2(monthly) });
+        ySum = 0; monthly *= (1 + g);
+      }
+    }
+    if (ySum > 0) yearly.push({ year: CONFIG.baseDate.year + yearly.length, amount: round2(ySum), base: round2(monthly) });
+    return { total: total, yearly: yearly };
+  }
+
+  // 历史已缴个人缴费估算：由账户余额倒推（按记账利率 0 的简化口径 + 1.2 修正）
+  function estimateWorkerHistory(paidMonths, balance, histIndex, avgSalary) {
+    if (!paidMonths || paidMonths <= 0) return 0;
+    // 以当前社平×历史指数×8% 近似历史个人缴费
+    var monthly = avgSalary * (isNum(histIndex) ? histIndex : 0.6) * 0.08;
+    return round2(monthly * paidMonths);
+  }
+
+  // 由账户余额反推历史缴费指数
+  function estimateHistoryIndex(months, balance) {
+    if (!months || months <= 0 || !(balance > 0)) return 0.6;
+    var avgSalary = CONFIG.worker.lastYearAvgSalary;
+    var idx = (balance / months) / (avgSalary * 0.08) / 1.2;
+    return clamp(round2(idx), 0.6, 3);
+  }
+
+  // 留存资金（不缴社保自己存银行）逐月积累、按年计息
+  function projectBankDeposit(salary, growthPct, ratePct, months, rate) {
+    if (!(months > 0)) return { total: 0, principal: 0, interest: 0 };
+    var bal = 0, principal = 0, monthly = salary, yearIn = 0;
+    var r = ratePct / 100, g = growthPct / 100;
+    for (var m = 0; m < months; m++) {
+      var c = monthly * rate;
+      bal += c; principal += c; yearIn += c;
+      if ((m + 1) % 12 === 0) {
+        bal = (bal - yearIn) * (1 + r) + yearIn;
+        yearIn = 0; monthly *= (1 + g);
+      }
+    }
+    return { total: bal, principal: principal, interest: bal - principal };
+  }
+
+  // 多久能"领回"投入：考虑剩余资金按利率增值
+  function monthsToRecover(principal, monthlyPension, ratePct) {
+    if (!(monthlyPension > 0)) return 0;
+    var bal = principal, r = ratePct / 100 / 12, m = 0;
+    var maxM = 12 * 60;
+    while (bal > 0 && m < maxM) {
+      bal = bal * (1 + r) - monthlyPension;
+      m++;
+    }
+    return m;
+  }
+
+  /* ================= 五、城乡居民 测算 ================= */
+  function calcResident(input) {
+    var rs = CONFIG.resident;
+    var baseDate = input.baseDate || makeDate(CONFIG.baseDate.year, CONFIG.baseDate.month - 1);
+    var birth = makeDate(input.birthYear, input.birthMonth - 1);
+    var retireDate = addMonths(birth, rs.retireAge * 12);
+
+    var tier = isNum(input.tier) ? input.tier : rs.defaultTier;
+    var paidYears = Math.max(0, Math.floor(input.paidYears || 0));
+    var balance = Math.max(0, input.accountBalance || 0);
+    var basicStandard = isNum(input.basicPension) ? input.basicPension : rs.basicPension;
+    var acctRate = clamp(isNum(input.accountRate) ? input.accountRate : rs.accountRate, 0, 8);
+    var bonus = isNum(input.yearlyBonus) ? input.yearlyBonus : rs.yearlyBonus;
+
+    // 可缴年数（含今年与 60 周岁当年）
+    var remainYears = retireDate <= baseDate ? 0 : retireDate.getFullYear() - baseDate.getFullYear() + 1;
+    var alreadyReceiving = remainYears === 0;
+
+    // 补缴
+    var backpayYears = 0, backpayAmount = 0;
+    if (input.backpay && input.backpayEnabled) {
+      for (var i = 0; i < rs.backpaySegments.length; i++) {
+        var seg = rs.backpaySegments[i];
+        var maxY = seg.endYear - seg.startYear + 1;
+        var yy = clamp(Math.floor((input.backpay[i] && input.backpay[i].years) || 0), 0, maxY);
+        var tt = clamp((input.backpay[i] && input.backpay[i].tier) || Math.min(tier, seg.maxTier), 0, seg.maxTier);
+        backpayYears += yy;
+        backpayAmount += yy * tt;
+      }
+    }
+
+    // 未来正常缴费年数
+    var plan = input.plan || 'pay_to_60';
+    var futureYears = 0;
+    if (remainYears > 0) {
+      if (plan === 'pay_to_60') futureYears = remainYears;
+      else if (plan === 'custom') {
+        var minC = Math.max(0, rs.minYears - paidYears - backpayYears);
+        futureYears = clamp(isNum(input.customYears) ? input.customYears : minC, minC, remainYears);
+      } else {
+        futureYears = Math.max(0, Math.min(remainYears, rs.minYears - paidYears - backpayYears));
+      }
+    }
+    futureYears = Math.floor(futureYears);
+
+    var totalYears = paidYears + backpayYears + futureYears;
+    var autoBackpayYears = 0;
+    if (totalYears < rs.minYears && !alreadyReceiving) {
+      autoBackpayYears = rs.minYears - totalYears;
+      totalYears = rs.minYears;
+    }
+
+    // 逐年缴费排期（支持中途调档）
+    var changes = (input.tierChanges || []).slice().sort(function (a, b) { return a.year - b.year; });
+    function tierOfYear(y) {
+      var t = tier;
+      for (var k = 0; k < changes.length; k++) if (changes[k].year <= y) t = changes[k].tier;
+      return t;
+    }
+    var segments = [], futureContribution = 0, subsidyTotal = 0;
+    for (var y = 1; y <= futureYears; y++) {
+      var absYear = baseDate.getFullYear() + y - 1;
+      var ty = tierOfYear(absYear);
+      var sy = getResidentSubsidy(ty);
+      segments.push({ year: absYear, tier: ty, subsidy: sy, age: Math.floor(ageAt(birth, makeDate(absYear, 0))) });
+      futureContribution += ty;
+      subsidyTotal += sy;
+    }
+
+    // 个人账户滚存至 60 周岁当年末
+    var yearsToRoll = remainYears;
+    var futureBalance = balance * Math.pow(1 + acctRate / 100, yearsToRoll);
+    var principal = balance + backpayAmount;
+    segments.forEach(function (seg) {
+      var roll = Math.max(0, yearsToRoll - (seg.year - baseDate.getFullYear() + 1) + 1);
+      var deposit = seg.tier + seg.subsidy;
+      principal += deposit;
+      futureBalance += deposit * Math.pow(1 + acctRate / 100, roll);
+    });
+    futureBalance += backpayAmount + autoBackpayYears * tier; // 补缴不计息不加补贴
+    principal += autoBackpayYears * tier;
+    var interest = Math.max(0, futureBalance - principal);
+
+    var accountPension = futureBalance / rs.payoutMonths;
+    var extraYears = Math.max(0, totalYears - rs.minYears);
+    var basicPension = basicStandard + extraYears * bonus;
+    var totalPension = basicPension + accountPension;
+
+    var totalPay = futureContribution + backpayAmount + autoBackpayYears * tier;
+    var historyEstimate = estimateResidentHistory(paidYears, balance, acctRate / 100);
+    var totalInvest = totalPay + historyEstimate;
+    var recoverMonths = monthsToRecover(totalInvest, totalPension, CONFIG.worker.bankDepositRate);
+
+    return {
+      mode: 'resident',
+      personLabel: '城乡居民养老保险',
+      birthYear: input.birthYear,
+      birthMonth: input.birthMonth,
+      currentAge: Math.floor(ageAt(birth, baseDate)),
+      retireDate: retireDate,
+      retireAge: rs.retireAge,
+      tier: tier,
+      subsidyPerYear: getResidentSubsidy(tier),
+      paidYears: paidYears,
+      futureYears: futureYears,
+      backpayYears: backpayYears + autoBackpayYears,
+      backpayAmount: round2(backpayAmount + autoBackpayYears * tier),
+      autoBackpayYears: autoBackpayYears,
+      totalYears: totalYears,
+      extraYears: extraYears,
+      futureContribution: round2(futureContribution),
+      subsidyTotal: round2(subsidyTotal),
+      totalPay: round2(totalPay),
+      historyEstimate: round2(historyEstimate),
+      totalInvest: round2(totalInvest),
+      accountBalance: round2(futureBalance),
+      accountPrincipal: round2(principal),
+      accountInterest: round2(interest),
+      basicStandard: basicStandard,
+      basicPension: round2(basicPension),
+      bonusPension: round2(extraYears * bonus),
+      accountPension: round2(accountPension),
+      transitionalPension: 0,
+      totalPension: round2(totalPension),
+      yearlyPension: round2(totalPension * 12),
+      recoverMonths: recoverMonths,
+      segments: segments,
+      alreadyReceiving: alreadyReceiving
+    };
+  }
+
+  function getResidentSubsidy(tier) {
+    var i = CONFIG.resident.tiers.indexOf(tier);
+    return i >= 0 ? CONFIG.resident.subsidies[i] : 0;
+  }
+
+  function estimateResidentHistory(paidYears, balance, rate) {
+    if (!(paidYears > 0) || !(balance > 0)) return 0;
+    var f = 0;
+    for (var k = 1; k <= paidYears; k++) f += Math.pow(1 + rate, k);
+    if (f <= 0) return 0;
+    var annual = balance / f;
+    var best = CONFIG.resident.tiers[0], bestDiff = Infinity;
+    CONFIG.resident.tiers.forEach(function (t, i) {
+      var d = Math.abs(t + CONFIG.resident.subsidies[i] - annual);
+      if (d < bestDiff) { bestDiff = d; best = t; }
+    });
+    return best * paidYears;
+  }
+
+  /* ================= 六、对比 ================= */
+  function comparePlans(list) {
+    if (!list || list.length < 2) return null;
+    var keys = [
+      { key: 'totalInvest', label: '总投入', lowerBetter: true },
+      { key: 'totalPension', label: '月养老金', lowerBetter: false },
+      { key: 'recoverMonths', label: '回本月数', lowerBetter: true }
+    ];
+    var out = { best: {}, years30: [] };
+    keys.forEach(function (k) {
+      var vals = list.map(function (p) { return p.results ? p.results[k.key] : (k.lowerBetter ? Infinity : -Infinity); });
+      var target = k.lowerBetter ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+      out.best[k.key] = vals.indexOf(target);
+    });
+    // 30 年累计领取对比
+    out.years30 = list.map(function (p) {
+      if (!p.results) return 0;
+      return round2(p.results.totalPension * 12 * 30);
+    });
+    return out;
+  }
+
+  var Engine = {
+    CONFIG: CONFIG,
+    calcWorker: calcWorker,
+    calcResident: calcResident,
+    calcStatutoryRetire: calcStatutoryRetire,
+    calcMinContributionYears: calcMinContributionYears,
+    getPaymentMonths: getPaymentMonths,
+    retireAgeBounds: retireAgeBounds,
+    resolveSchedule: resolveSchedule,
+    getPersonType: getPersonType,
+    getResidentSubsidy: getResidentSubsidy,
+    comparePlans: comparePlans,
+    util: {
+      fmtMoney: fmtMoney, fmtInt: fmtInt, fmtYYYYMM: fmtYYYYMM,
+      makeDate: makeDate, addMonths: addMonths, diffMonths: diffMonths,
+      round1: round1, round2: round2, clamp: clamp, isNum: isNum
+    }
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
+  root.HZSHEBAO = Engine;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* ============================================================
+   贺州 · 社保规划  —  界面交互 app.js
+   ============================================================ */
+(function () {
+  'use strict';
+  var E = window.HZSHEBAO;
+  var CFG = E.CONFIG;
+  var U = E.util;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var state = {
+    mode: 'worker',
+    plans: [],
+    activePlanId: null,
+    lastResult: null,
+    uid: 0
+  };
+
+  /* ---------------- 通用 ---------------- */
+  function toast(msg) {
+    var t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+  function modal(title, text) {
+    $('modalTitle').textContent = title;
+    $('modalText').textContent = text;
+    $('modalMask').classList.add('open');
+  }
+  function parseMoney(v) {
+    if (v === null || v === undefined) return 0;
+    var s = String(v).replace(/[,，\s]/g, '');
+    var n = parseFloat(s);
+    return isNum(n) ? n : 0;
+  }
+  function isNum(n) { return typeof n === 'number' && !isNaN(n) && isFinite(n); }
+  function val(id) { var el = $(id); return el ? el.value : ''; }
+  function num(id) { return parseMoney(val(id)); }
+
+  /* ---------------- 初始化 ---------------- */
+  function init() {
+    // 人员类型
+    var sel = $('personType');
+    CFG.personTypes.forEach(function (p) {
+      var o = document.createElement('option');
+      o.value = p.key; o.textContent = p.label; sel.appendChild(o);
+    });
+
+    // 出生年月
+    var maxYear = CFG.baseDate.year - 16;
+    for (var y = maxYear; y >= 1935; y--) {
+      var o = document.createElement('option');
+      o.value = y; o.textContent = y + ' 年'; $('birthYear').appendChild(o);
+    }
+    for (var m = 1; m <= 12; m++) {
+      var om = document.createElement('option');
+      om.value = m; om.textContent = m + ' 月'; $('birthMonth').appendChild(om);
+    }
+
+    // 高级选项默认值
+    $('lastYearAvgSalary').value = CFG.worker.lastYearAvgSalary;
+    $('accountRate').value = CFG.worker.accountRate;
+    $('salaryGrowthRate').value = CFG.worker.salaryGrowthRate;
+    $('bankRate').value = CFG.worker.bankDepositRate;
+    $('salaryHint').textContent = '默认按上年度社平工资的 ' + Math.round(CFG.worker.baseFloorRatio * 100) + '%（' +
+      U.fmtInt(CFG.worker.lastYearAvgSalary * CFG.worker.baseFloorRatio) + ' 元）申报，可在社平 ' +
+      Math.round(CFG.worker.baseFloorRatio * 100) + '%~' + Math.round(CFG.worker.baseCeilRatio * 100) + '% 区间内调整';
+
+    // 居民缴费档次
+    var tierSel = $('resTier');
+    CFG.resident.tiers.forEach(function (t, i) {
+      var o = document.createElement('option');
+      o.value = t;
+      o.textContent = t + ' 元/年（补贴 ' + CFG.resident.subsidies[i] + ' 元）' +
+        (t === 100 ? ' · 困难群体代缴档' : '');
+      tierSel.appendChild(o);
+    });
+    tierSel.value = CFG.resident.defaultTier;
+    $('resBasicPension').value = CFG.resident.basicPension;
+    $('resAccountRate').value = CFG.resident.accountRate;
+    $('resYearlyBonus').value = CFG.resident.yearlyBonus;
+    $('resTierHint').textContent = '贺州现行 ' + CFG.resident.tiers.length + ' 档（' +
+      CFG.resident.tiers[0] + '~' + CFG.resident.tiers[CFG.resident.tiers.length - 1] + ' 元/年），按年缴费，多缴多得';
+
+    // 补缴区
+    buildBackpayFields();
+    // 政策表
+    buildPolicyTierTable();
+    // 政策参数文本
+    $('pFloor').textContent = Math.round(CFG.worker.baseFloorRatio * 100);
+    $('pCeil').textContent = Math.round(CFG.worker.baseCeilRatio * 100);
+    $('pAcctRate').textContent = CFG.worker.accountRate;
+    $('pGrowth').textContent = CFG.worker.salaryGrowthRate.toFixed(1);
+    $('pPayout').textContent = CFG.resident.payoutMonths;
+    $('pResBasic').textContent = CFG.resident.basicPension;
+    $('pBonus').textContent = CFG.resident.yearlyBonus;
+    var contactBits = [];
+    if (CFG.region.phone) contactBits.push('电话：' + CFG.region.phone);
+    if (CFG.region.address) contactBits.push('地址：' + CFG.region.address);
+    if (contactBits.length) {
+      $('policyContact').innerHTML = '如有疑问请联系' + CFG.region.centerName + '，' + contactBits.join('，');
+      $('policyContact').style.display = 'block';
+    } else {
+      $('policyContact').style.display = 'none';
+    }
+    $('footerOrg').textContent = CFG.region.centerName + ' · 便民服务';
+    $('headerMeta').textContent = '测算基准日 ' + CFG.baseDate.year + '年' + CFG.baseDate.month + '月 · ' + CFG.region.dataVersion;
+
+    bindEvents();
+    // 默认给个示例，方便直接体验
+    $('birthYear').value = '1980';
+    $('birthMonth').value = '6';
+    $('personType').value = 'male';
+    $('paidMonths').value = '120';
+    $('accountBalance').value = '86000';
+    $('monthlySalary').value = U.fmtInt(CFG.worker.lastYearAvgSalary * 0.6);
+    syncRetireInfo();
+    syncWorkerEstimates();
+    syncResidentEstimates();
+    renderTabs();
+  }
+
+  function buildBackpayFields() {
+    var grid = $('backpayGrid'); grid.innerHTML = '';
+    CFG.resident.backpaySegments.forEach(function (seg, i) {
+      var maxY = seg.endYear - seg.startYear + 1;
+      var block = document.createElement('div');
+      block.className = 'backpay-block';
+      block.innerHTML =
+        '<div class="bp-title">' + seg.label + '</div>' +
+        '<div class="bp-cap">最多补缴 ' + maxY + ' 年，最高 ' + seg.maxTier + ' 元/年</div>' +
+        '<input type="number" id="bpYears' + i + '" min="0" max="' + maxY + '" step="1" value="0" placeholder="补缴年数" />' +
+        '<select id="bpTier' + i + '"></select>';
+      grid.appendChild(block);
+      var ts = $('bpTier' + i);
+      CFG.resident.tiers.forEach(function (t) {
+        if (t > seg.maxTier) return;
+        var o = document.createElement('option');
+        o.value = t; o.textContent = t + ' 元/年'; ts.appendChild(o);
+      });
+      ts.value = Math.min(CFG.resident.defaultTier, seg.maxTier);
+    });
+  }
+
+  function buildPolicyTierTable() {
+    var tb = $('policyTierTable'); tb.innerHTML = '';
+    var tiers = CFG.resident.tiers, subs = CFG.resident.subsidies;
+    var half = Math.ceil(tiers.length / 2);
+    for (var i = 0; i < half; i++) {
+      var tr = document.createElement('tr');
+      var j = i + half;
+      tr.innerHTML = '<td>' + tiers[i] + '</td><td>' + subs[i] + '</td>' +
+        (j < tiers.length ? '<td>' + tiers[j] + '</td><td>' + subs[j] + '</td>' : '<td>—</td><td>—</td>');
+      tb.appendChild(tr);
+    }
+  }
+
+  /* ---------------- 事件绑定 ---------------- */
+  function bindEvents() {
+    document.querySelectorAll('.mode-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchMode(btn.dataset.mode); });
+    });
+
+    document.querySelectorAll('.btn-toggle-advanced').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var box = $(btn.dataset.toggle);
+        var open = box.classList.toggle('open');
+        btn.textContent = (open ? '– 收起高级选项' : '+ 显示高级选项');
+      });
+    });
+
+    $('policyTitleRow').addEventListener('click', function () {
+      var c = $('policyContent');
+      var show = c.style.display === 'none';
+      c.style.display = show ? 'block' : 'none';
+      $('policyToggle').textContent = show ? '–' : '+';
+    });
+
+    // 基本信息联动
+    ['birthYear', 'birthMonth', 'personType', 'paidMonths', 'deemedMonths'].forEach(function (id) {
+      $(id).addEventListener('change', function () { syncRetireInfo(); syncWorkerEstimates(); });
+      $(id).addEventListener('input', function () { syncRetireInfo(); syncWorkerEstimates(); });
+    });
+    $('manualAge').addEventListener('input', function () { syncRetireInfo(); syncWorkerEstimates(); });
+
+    ['monthlySalary', 'currentIndex', 'lastYearAvgSalary', 'accountRate', 'salaryGrowthRate'].forEach(function (id) {
+      $(id).addEventListener('input', function () { syncWorkerEstimates(); });
+    });
+
+    $('workerPlan').addEventListener('change', function () {
+      var isCustom = this.value === 'custom';
+      $('fgCustomYears').style.display = isCustom ? 'flex' : 'none';
+      if (isCustom) buildCustomYearOptions();
+      syncWorkerEstimates();
+    });
+
+    // 居民联动
+    ['resPaidYears', 'resBalance', 'resTier', 'resPlan', 'resCustomYears', 'resBasicPension', 'resAccountRate', 'resYearlyBonus'].forEach(function (id) {
+      $(id).addEventListener('change', function () { syncResidentEstimates(); });
+      $(id).addEventListener('input', function () { syncResidentEstimates(); });
+    });
+    $('resPlan').addEventListener('change', function () {
+      var isCustom = this.value === 'custom';
+      $('fgResCustomYears').style.display = isCustom ? 'flex' : 'none';
+      if (isCustom) buildResCustomYearOptions();
+      syncResidentEstimates();
+    });
+    $('backpayEnabled').addEventListener('change', function () {
+      $('backpayGrid').style.display = this.checked ? 'grid' : 'none';
+      syncResidentEstimates();
+    });
+    $('backpayGrid').addEventListener('input', syncResidentEstimates);
+    $('backpayGrid').addEventListener('change', syncResidentEstimates);
+
+    $('btnAddTierChange').addEventListener('click', function () { addTierChangeRow(); });
+
+    // 测算
+    $('btnCalcWorker').addEventListener('click', function () { runCalc('worker'); });
+    $('btnCalcResident').addEventListener('click', function () { runCalc('resident'); });
+
+    // 重置
+    $('btnResetWorker').addEventListener('click', function () {
+      $('paidMonths').value = '0';
+      $('accountBalance').value = '0';
+      $('deemedMonths').value = '';
+      $('historyIndex').value = '';
+      $('manualAge').value = '';
+      $('monthlySalary').value = U.fmtInt(CFG.worker.lastYearAvgSalary * CFG.worker.baseFloorRatio);
+      $('workerPlan').value = 'pay_to_retire';
+      $('fgCustomYears').style.display = 'none';
+      syncRetireInfo(); syncWorkerEstimates();
+      resetResult();
+      toast('已重置');
+    });
+    $('btnResetResident').addEventListener('click', function () {
+      $('resPaidYears').value = '0';
+      $('resBalance').value = '0';
+      $('resTier').value = CFG.resident.defaultTier;
+      $('resPlan').value = 'pay_to_60';
+      $('fgResCustomYears').style.display = 'none';
+      $('backpayEnabled').checked = false;
+      $('backpayGrid').style.display = 'none';
+      CFG.resident.backpaySegments.forEach(function (s, i) { $('bpYears' + i).value = '0'; });
+      $('tierChangeList').innerHTML = '';
+      syncResidentEstimates();
+      resetResult();
+      toast('已重置');
+    });
+
+    // 方案
+    $('btnAddPlan').addEventListener('click', addPlan);
+    $('btnClearPlans').addEventListener('click', function () {
+      state.plans = []; state.activePlanId = null; renderTabs(); renderCompare();
+      toast('已清空方案');
+    });
+
+    $('modalOk').addEventListener('click', function () { $('modalMask').classList.remove('open'); });
+    $('modalMask').addEventListener('click', function (e) {
+      if (e.target === $('modalMask')) $('modalMask').classList.remove('open');
+    });
+  }
+
+  /* ---------------- 模式切换 ---------------- */
+  function switchMode(mode) {
+    state.mode = mode;
+    document.querySelectorAll('.mode-tab').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+    document.querySelectorAll('.worker-only').forEach(function (el) {
+      el.style.display = (mode === 'worker') ? '' : 'none';
+    });
+    document.querySelectorAll('.resident-only').forEach(function (el) {
+      el.style.display = (mode === 'resident') ? '' : 'none';
+    });
+    // form-group 类元素需要重置回 flex
+    if (mode === 'worker') {
+      document.querySelectorAll('.worker-only.form-group').forEach(function (el) { el.style.display = 'flex'; });
+      $('fgCustomYears').style.display = $('workerPlan').value === 'custom' ? 'flex' : 'none';
+    } else {
+      document.querySelectorAll('.resident-only.form-group').forEach(function (el) { el.style.display = 'flex'; });
+      $('fgResCustomYears').style.display = $('resPlan').value === 'custom' ? 'flex' : 'none';
+    }
+    resetResult();
+  }
+
+  /* ---------------- 退休信息联动 ---------------- */
+  function getBirth() {
+    var y = parseInt(val('birthYear'), 10), m = parseInt(val('birthMonth'), 10);
+    if (!y || !m) return null;
+    return { y: y, m: m, date: U.makeDate(y, m - 1) };
+  }
+
+  function syncRetireInfo() {
+    var b = getBirth();
+    $('fgBirth').classList.toggle('invalid', !b);
+    if (!b) { $('retireDateText').value = ''; $('minYears').value = ''; return null; }
+    var pt = val('personType');
+    if (!pt) return null;
+
+    var st = E.calcStatutoryRetire(pt, b.date);
+    var paidM = Math.max(0, Math.round(num('paidMonths')));
+    var deemedM = parseDeemed(val('deemedMonths')).sum;
+    var credited = paidM + deemedM;
+    var manual = val('manualAge').trim() === '' ? null : parseFloat(val('manualAge'));
+    var sched = E.resolveSchedule(pt, b.date, manual, credited);
+
+    $('minYears').value = sched.minYears + ' 年';
+    $('retireDateText').value = U.fmtYYYYMM(sched.retireDate) + '（约 ' + U.round1(sched.retireAge) + ' 岁）';
+
+    var hintBits = [];
+    hintBits.push('新法定退休：' + U.fmtYYYYMM(sched.bounds.statutoryDate) + '（' + U.round1(sched.bounds.statutoryDate ? U.diffMonths(b.date, sched.bounds.statutoryDate) / 12 : 0) + ' 岁）');
+    if (sched.needsExtension) {
+      hintBits.push('⚠ 缴费年限不足，需顺延 ' + sched.extraMonths + ' 个月缴费');
+    }
+    if (manual !== null && sched.clamped) {
+      hintBits.push('填写年龄超出可选区间，已调整为 ' + U.round1(sched.wishAge) + ' 岁');
+    }
+    $('retireDateHint').textContent = hintBits.join('　');
+
+    // 弹性退休区间提示
+    var lo = Math.floor(sched.bounds.lo / 12 * 10) / 10, hi = Math.floor(sched.bounds.hi / 12 * 10) / 10;
+    $('retireAgeHint').textContent = '弹性退休可选区间 ' + lo + ' ~ ' + hi + ' 岁；留空按新法定退休年龄自动计算。';
+    $('manualAge').min = lo;
+    $('manualAge').max = hi;
+    return { birth: b, sched: sched, paidM: paidM, deemed: parseDeemed(val('deemedMonths')) };
+  }
+
+  function parseDeemed(s) {
+    s = (s || '').trim();
+    if (!s) return { deemed: 0, preAccount: 0, sum: 0 };
+    var parts = s.split('+').map(function (x) { return parseInt(x, 10) || 0; });
+    var a = parts[0] || 0, b = parts[1] || 0;
+    return { deemed: a, preAccount: b, sum: a + b };
+  }
+
+  function buildCustomYearOptions() {
+    var info = syncRetireInfo();
+    if (!info) return;
+    var sel = $('customYears'); var prev = parseFloat(sel.value);
+    var credited = (info.paidM + info.deemed.sum) / 12;
+    var minY = Math.max(0, Math.ceil(info.sched.minYears - credited));
+    var maxY = Math.max(minY, Math.floor(U.diffMonths(U.makeDate(CFG.baseDate.year, CFG.baseDate.month - 1), info.birth.date ? U.addMonths(info.birth.date, Math.round(info.sched.wishAge * 12)) : new Date()) / 12));
+    sel.innerHTML = '';
+    for (var y = minY; y <= maxY; y++) {
+      var o = document.createElement('option'); o.value = y; o.textContent = y + ' 年'; sel.appendChild(o);
+    }
+    sel.value = isNum(prev) ? Math.min(Math.max(prev, minY), maxY) : maxY;
+  }
+
+  function buildResCustomYearOptions() {
+    var b = getBirth();
+    if (!b) return;
+    var paid = Math.max(0, Math.floor(num('resPaidYears')));
+    var retireDate = U.addMonths(b.date, CFG.resident.retireAge * 12);
+    var base = U.makeDate(CFG.baseDate.year, CFG.baseDate.month - 1);
+    var remain = retireDate <= base ? 0 : retireDate.getFullYear() - base.getFullYear() + 1;
+    var minY = Math.max(0, CFG.resident.minYears - paid);
+    var sel = $('resCustomYears'); var prev = parseFloat(sel.value);
+    sel.innerHTML = '';
+    for (var y = minY; y <= remain; y++) {
+      var o = document.createElement('option'); o.value = y; o.textContent = y + ' 年'; sel.appendChild(o);
+    }
+    sel.value = isNum(prev) ? Math.min(Math.max(prev, minY), remain) : remain;
+  }
+
+  /* ---------------- 缴费金额联动 ---------------- */
+  function syncWorkerEstimates() {
+    var salaryInput = num('monthlySalary');
+    var avg = num('lastYearAvgSalary') || CFG.worker.lastYearAvgSalary;
+    var salary = salaryInput > 0 ? U.clamp(salaryInput, avg * CFG.worker.baseFloorRatio, avg * CFG.worker.baseCeilRatio) : avg * CFG.worker.baseFloorRatio;
+    var pt = E.getPersonType(val('personType'));
+    var rate = pt && pt.group === 'flexible' ? CFG.worker.flexibleRate : CFG.worker.employeeRate;
+    var index = num('currentIndex') > 0 ? num('currentIndex') : U.clamp(salary / avg, 0.6, 3);
+
+    $('monthContribution').value = U.fmtInt(salary * rate);
+    $('yearContribution').value = U.fmtInt(salary * 12 * rate);
+    $('monthContribHint').textContent = '缴费基数 ' + U.fmtInt(salary) + ' 元 × ' + Math.round(rate * 100) +
+      '%（' + (pt && pt.group === 'flexible' ? '灵活就业 20%，其中 8% 进个人账户' : '个人 8% 进个人账户') + '）';
+
+    if (salaryInput > 0 && salaryInput !== salary) {
+      $('salaryHint').textContent = '输入值超出区间，已按 ' + U.fmtInt(salary) + ' 元（社平 ' +
+        Math.round(salary / avg * 100) + '%）计算';
+    } else {
+      $('salaryHint').textContent = '默认按社平 ' + Math.round(CFG.worker.baseFloorRatio * 100) + '%（' +
+        U.fmtInt(avg * CFG.worker.baseFloorRatio) + ' 元）申报，可在 60%~300% 区间调整';
+    }
+
+    var info = syncRetireInfo();
+    if (!info) { $('totalContribution').value = ''; return; }
+    var base = U.makeDate(CFG.baseDate.year, CFG.baseDate.month - 1);
+    var remainYears = Math.max(0, U.diffMonths(base, U.addMonths(info.birth.date, Math.round(info.sched.wishAge * 12))) / 12);
+    var credited = (info.paidM + info.deemed.sum) / 12;
+    var minCustom = Math.max(0, info.sched.minYears - credited);
+    var plan = val('workerPlan');
+    var years = plan === 'pay_to_min' ? minCustom : (plan === 'custom' ? (parseFloat(val('customYears')) || remainYears) : remainYears);
+    if (info.sched.needsExtension) years = minCustom;
+    years = U.round1(years);
+    var total = 0, m = salary, g = (num('salaryGrowthRate') || 0) / 100;
+    var months = Math.round(years * 12);
+    for (var i = 0; i < months; i++) { total += m * rate; if ((i + 1) % 12 === 0) m *= (1 + g); }
+    $('totalContribution').value = U.fmtInt(total) + '（缴 ' + years + ' 年）';
+    $('currentIndex').placeholder = '当前约 ' + U.round2(index);
+  }
+
+  function syncResidentEstimates() {
+    var tier = parseInt(val('resTier'), 10) || CFG.resident.defaultTier;
+    var subsidy = E.getResidentSubsidy(tier);
+    $('resSubsidy').value = subsidy + ' 元';
+    var b = getBirth();
+    if (!b) { $('resTotalPay').value = ''; $('resTotalSubsidy').value = ''; return; }
+    var base = U.makeDate(CFG.baseDate.year, CFG.baseDate.month - 1);
+    var retireDate = U.addMonths(b.date, CFG.resident.retireAge * 12);
+    var remain = retireDate <= base ? 0 : retireDate.getFullYear() - base.getFullYear() + 1;
+    var paid = Math.max(0, Math.floor(num('resPaidYears')));
+    var plan = val('resPlan');
+    var bp = readBackpay();
+    var future = remain;
+    if (plan === 'pay_to_15') future = Math.max(0, Math.min(remain, CFG.resident.minYears - paid - bp.years));
+    else if (plan === 'custom') future = U.clamp(parseFloat(val('resCustomYears')) || remain, Math.max(0, CFG.resident.minYears - paid - bp.years), remain);
+    future = Math.floor(future);
+
+    var changes = readTierChanges();
+    var pay = 0, sub = 0;
+    for (var y = 1; y <= future; y++) {
+      var abs = base.getFullYear() + y - 1;
+      var t = tier;
+      changes.forEach(function (c) { if (c.year <= abs) t = c.tier; });
+      pay += t; sub += E.getResidentSubsidy(t);
+    }
+    var autoBp = 0;
+    if (paid + bp.years + future < CFG.resident.minYears && remain > 0) {
+      autoBp = CFG.resident.minYears - (paid + bp.years + future);
+    }
+    var totalPay = pay + bp.amount + autoBp * tier;
+    $('resTotalPay').value = U.fmtInt(totalPay) + (bp.years + autoBp > 0 ? '（含补缴 ' + (bp.years + autoBp) + ' 年）' : '');
+    $('resTotalSubsidy').value = U.fmtInt(sub);
+    if ($('fgResCustomYears').style.display !== 'none') buildResCustomYearOptions();
+  }
+
+  function readBackpay() {
+    if (!$('backpayEnabled').checked) return { years: 0, amount: 0, list: [] };
+    var years = 0, amount = 0, list = [];
+    CFG.resident.backpaySegments.forEach(function (seg, i) {
+      var maxY = seg.endYear - seg.startYear + 1;
+      var y = U.clamp(Math.floor(num('bpYears' + i)), 0, maxY);
+      var t = parseInt(val('bpTier' + i), 10) || Math.min(CFG.resident.defaultTier, seg.maxTier);
+      years += y; amount += y * t; list.push({ years: y, tier: t });
+    });
+    return { years: years, amount: amount, list: list };
+  }
+
+  /* ---------------- 调档 ---------------- */
+  function addTierChangeRow(year, tier) {
+    var base = CFG.baseDate.year;
+    if (!year) {
+      var rows = $('tierChangeList').querySelectorAll('.tier-change-row');
+      year = base + rows.length + 1;
+    }
+    var row = document.createElement('div');
+    row.className = 'tier-change-row';
+    var opts = '', topts = '';
+    for (var y = base; y <= base + 40; y++) opts += '<option value="' + y + '"' + (y === year ? ' selected' : '') + '>' + y + ' 年起</option>';
+    CFG.resident.tiers.forEach(function (t) { topts += '<option value="' + t + '"' + (t === (tier || CFG.resident.defaultTier) ? ' selected' : '') + '>' + t + ' 元/年' + (t === 100 ? ' · 困难群体代缴档' : '') + '</option>'; });
+    row.innerHTML = '<select class="tier-change-year">' + opts + '</select>' +
+      '<select class="tier-change-tier">' + topts + '</select>' +
+      '<button class="btn-tier-change-remove" title="删除">×</button>';
+    row.querySelector('.btn-tier-change-remove').addEventListener('click', function () { row.remove(); syncResidentEstimates(); });
+    row.addEventListener('change', syncResidentEstimates);
+    $('tierChangeList').appendChild(row);
+    syncResidentEstimates();
+  }
+
+  function readTierChanges() {
+    var out = [];
+    $('tierChangeList').querySelectorAll('.tier-change-row').forEach(function (r) {
+      out.push({ year: parseInt(r.querySelector('.tier-change-year').value, 10), tier: parseInt(r.querySelector('.tier-change-tier').value, 10) });
+    });
+    return out.sort(function (a, b) { return a.year - b.year; });
+  }
+
+  /* ---------------- 计算 ---------------- */
+  function collectWorkerInput() {
+    var b = getBirth();
+    if (!b) return { error: '请选择出生年月' };
+    if (!val('personType')) return { error: '请选择人员类型' };
+    var paid = val('paidMonths');
+    if (paid !== '' && (parseFloat(paid) < 0 || parseFloat(paid) > 600)) return { error: '历史已缴费月数需在 0—600 之间' };
+    return {
+      personKey: val('personType'),
+      birthYear: b.y,
+      birthMonth: b.m,
+      paidMonths: Math.round(num('paidMonths')),
+      accountBalance: num('accountBalance'),
+      deemedMonths: parseDeemed(val('deemedMonths')).deemed,
+      preAccountMonths: parseDeemed(val('deemedMonths')).preAccount,
+      historyIndex: val('historyIndex').trim() === '' ? null : parseFloat(val('historyIndex')),
+      manualAge: val('manualAge').trim() === '' ? null : parseFloat(val('manualAge')),
+      monthlySalary: num('monthlySalary'),
+      currentIndex: val('currentIndex').trim() === '' ? null : parseFloat(val('currentIndex')),
+      lastYearAvgSalary: num('lastYearAvgSalary') || CFG.worker.lastYearAvgSalary,
+      accountRate: val('accountRate') === '' ? CFG.worker.accountRate : num('accountRate'),
+      salaryGrowthRate: val('salaryGrowthRate') === '' ? CFG.worker.salaryGrowthRate : num('salaryGrowthRate'),
+      plan: val('workerPlan'),
+      customYears: parseFloat(val('customYears'))
+    };
+  }
+
+  function collectResidentInput() {
+    var b = getBirth();
+    if (!b) return { error: '请选择出生年月' };
+    return {
+      birthYear: b.y,
+      birthMonth: b.m,
+      paidYears: Math.floor(num('resPaidYears')),
+      accountBalance: num('resBalance'),
+      tier: parseInt(val('resTier'), 10),
+      plan: val('resPlan'),
+      customYears: parseFloat(val('resCustomYears')),
+      basicPension: num('resBasicPension'),
+      accountRate: val('resAccountRate') === '' ? CFG.resident.accountRate : num('resAccountRate'),
+      yearlyBonus: num('resYearlyBonus'),
+      backpayEnabled: $('backpayEnabled').checked,
+      backpay: readBackpay().list,
+      tierChanges: readTierChanges()
+    };
+  }
+
+  function runCalc(mode) {
+    var input = mode === 'worker' ? collectWorkerInput() : collectResidentInput();
+    if (input.error) {
+      $('fgBirth').classList.toggle('invalid', input.error.indexOf('出生') >= 0);
+      modal('还差一步', input.error);
+      return;
+    }
+    var res = mode === 'worker' ? E.calcWorker(input) : E.calcResident(input);
+    if (!res) { modal('无法测算', '请检查填写信息是否完整、合理。'); return; }
+
+    state.lastResult = { mode: mode, input: input, results: res };
+    renderResult(res);
+
+    // 首次自动存为方案
+    if (state.plans.length === 0) {
+      addPlan(true);
+    } else if (state.activePlanId) {
+      var p = findPlan(state.activePlanId);
+      if (p && p.mode === mode) { p.input = input; p.results = res; p.summary = summarize(res); renderTabs(); renderCompare(); }
+    }
+    setTimeout(function () {
+      $('resultBody').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 60);
+  }
+
+  function resetResult() {
+    $('resultBody').style.display = 'none';
+    $('resultEmpty').style.display = 'block';
+    state.lastResult = null;
+  }
+
+  /* ---------------- 结果渲染 ---------------- */
+  function renderResult(r) {
+    $('resultEmpty').style.display = 'none';
+    $('resultBody').style.display = 'block';
+
+    $('rRetireDate').textContent = U.fmtYYYYMM(U.addMonths(r.retireDate, 1));
+    $('rPension').textContent = U.fmtInt(r.totalPension);
+    $('rInvest').textContent = U.fmtInt(r.totalInvest);
+    var rm = r.recoverMonths;
+    $('rRecover').textContent = rm >= 12 ? Math.floor(rm / 12) + ' 年 ' + (rm % 12) + ' 个月' : rm + ' 个月';
+    var ru = $('rRecoverUnit'); if (ru) ru.style.display = 'none';
+
+    $('rBasic').innerHTML = U.fmtInt(r.basicPension) + '<small>元</small>';
+    $('rAccount').innerHTML = U.fmtInt(r.accountPension) + '<small>元</small>';
+    $('rTrans').innerHTML = U.fmtInt(r.transitionalPension) + '<small>元</small>';
+    $('rIndex').textContent = r.mode === 'worker' ? r.weightedIndex.toFixed(2) : (r.tier / 1000).toFixed(2) + '档';
+
+    // 银行对比
+    var bankTip = $('rCompareBank');
+    if (r.mode === 'worker' && r.bankValue > 0) {
+      bankTip.style.display = 'block';
+      bankTip.innerHTML = '若把同样的钱存银行（年利率 ' + CFG.worker.bankDepositRate + '%），退休时约 <b>' +
+        U.fmtInt(r.bankValue) + '</b> 元，按每月 ' + U.fmtInt(r.totalPension) + ' 元领取约 ' +
+        Math.floor(r.bankMonths / 12) + ' 年 ' + (r.bankMonths % 12) + ' 个月用尽；<b>养老金可终身领取</b>。';
+    } else {
+      bankTip.style.display = 'none';
+    }
+
+    // 明细
+    var html = '';
+    if (r.mode === 'worker') {
+      html =
+        '<div>缴费年限：已缴 <b>' + r.creditedYears + '</b> 年（' + r.paidMonths + ' 个月' + (r.deemedMonths ? ' + 视同 ' + r.deemedMonths + ' 个月' : '') +
+        '），后续再缴 <b>' + r.actualYears + '</b> 年，合计 <b>' + r.totalYears + '</b> 年' +
+        (r.needsExtension ? '（<span style="color:#fa8c16">因不足最低缴费年限 ' + r.minYears + ' 年，申领时间已顺延 ' + r.extraMonths + ' 个月</span>）' : '') + '</div>' +
+        '<div>退休时上年度社平工资约 <b>' + U.fmtInt(r.prevYearAvgSalary) + '</b> 元/月；计发月数 <b>' + r.paymentMonths + '</b> 个月；' +
+        '缴费基数 <b>' + U.fmtInt(r.salary) + '</b> 元（指数 ' + r.curIndex.toFixed(2) + '）</div>' +
+        '<div>总投入约 <b>' + U.fmtInt(r.totalInvest) + '</b> 元（后续 ' + U.fmtInt(r.totalContribution) + ' 元 + 历史约 ' +
+        U.fmtInt(r.totalInvest - r.totalContribution) + ' 元）；退休时个人账户累计 <b>' + U.fmtInt(r.accountBalance) +
+        '</b> 元（含利息 ' + U.fmtInt(r.accountInterest) + ' 元）</div>' +
+        '<div>领取结构：基础养老金 ' + U.fmtInt(r.basicPension) + ' + 个人账户养老金 ' + U.fmtInt(r.accountPension) +
+        (r.transitionalPension > 0 ? ' + 过渡性养老金 ' + U.fmtInt(r.transitionalPension) : '') +
+        ' = <b>' + U.fmtInt(r.totalPension) + '</b> 元/月，年领约 <b>' + U.fmtInt(r.yearlyPension) + '</b> 元</div>';
+    } else {
+      html =
+        '<div>缴费档次 <b>' + r.tier + '</b> 元/年（补贴 ' + r.subsidyPerYear + ' 元/年）；已缴 ' + r.paidYears + ' 年，后续再缴 ' +
+        r.futureYears + ' 年' + (r.backpayYears > 0 ? '，补缴 ' + r.backpayYears + ' 年（' + U.fmtInt(r.backpayAmount) + ' 元，不计补贴）' : '') +
+        '，累计 <b>' + r.totalYears + '</b> 年</div>' +
+        '<div>个人账户累计 <b>' + U.fmtInt(r.accountBalance) + '</b> 元（本金 ' + U.fmtInt(r.accountPrincipal) +
+        ' + 利息 ' + U.fmtInt(r.accountInterest) + '），÷' + CFG.resident.payoutMonths + ' = ' + U.fmtInt(r.accountPension) + ' 元/月</div>' +
+        '<div>基础养老金 ' + U.fmtInt(r.basicStandard) + (r.bonusPension > 0 ? ' + 年限加发 ' + U.fmtInt(r.bonusPension) : '') +
+        ' + 个人账户 ' + U.fmtInt(r.accountPension) + ' = <b>' + U.fmtInt(r.totalPension) + '</b> 元/月，年领约 <b>' + U.fmtInt(r.yearlyPension) + '</b> 元</div>' +
+        '<div>累计投入约 <b>' + U.fmtInt(r.totalInvest) + '</b> 元，约 ' + (rm >= 12 ? Math.floor(rm / 12) + ' 年 ' + (rm % 12) + ' 个月' : rm + ' 个月') + ' 领回个人缴费</div>';
+    }
+    $('rDetail').innerHTML = html;
+  }
+
+  /* ---------------- 方案 ---------------- */
+  function findPlan(id) {
+    for (var i = 0; i < state.plans.length; i++) if (state.plans[i].id === id) return state.plans[i];
+    return null;
+  }
+
+  function summarize(r) {
+    return {
+      type: r.mode === 'worker' ? '职工/灵活就业' : '城乡居民',
+      planText: r.mode === 'worker'
+        ? (r.actualYears <= 0 ? '已缴满' : '缴 ' + r.actualYears + ' 年')
+        : (r.futureYears <= 0 ? '已缴满' : '缴 ' + r.futureYears + ' 年'),
+      monthPay: r.mode === 'worker' ? Math.round(r.monthContribution) : Math.round(r.tier / 12),
+      yearPay: r.mode === 'worker' ? Math.round(r.yearContribution) : Math.round(r.tier),
+      totalInvest: Math.round(r.totalInvest),
+      pension: Math.round(r.totalPension),
+      recover: r.recoverMonths,
+      totalPension: r.totalPension
+    };
+  }
+
+  function addPlan(silent) {
+    if (!state.lastResult) {
+      modal('暂无测算结果', '请先填写信息并点击「开始测算」，再把结果保存为方案。');
+      return;
+    }
+    state.uid++;
+    var r = state.lastResult.results;
+    var plan = {
+      id: 'p' + state.uid,
+      name: '方案' + state.uid,
+      mode: state.lastResult.mode,
+      input: state.lastResult.input,
+      results: r,
+      summary: summarize(r)
+    };
+    state.plans.push(plan);
+    state.activePlanId = plan.id;
+    renderTabs(); renderCompare();
+    if (!silent) toast('已保存为「' + plan.name + '」');
+  }
+
+  function renderTabs() {
+    var box = $('planTabs'); box.innerHTML = '';
+    if (!state.plans.length) {
+      box.innerHTML = '<span style="font-size:13px;color:#94a3b8">尚未保存方案</span>';
+      return;
+    }
+    state.plans.forEach(function (p) {
+      var el = document.createElement('div');
+      el.className = 'plan-tab' + (p.id === state.activePlanId ? ' active' : '');
+      var inp = document.createElement('input');
+      inp.className = 'plan-name-edit';
+      inp.value = p.name;
+      inp.addEventListener('input', function () { p.name = inp.value || p.name; });
+      inp.addEventListener('change', function () { renderTabs(); renderCompare(); });
+      inp.addEventListener('click', function (e) { e.stopPropagation(); });
+      var del = document.createElement('button');
+      del.className = 'plan-tab-delete';
+      del.textContent = '×';
+      del.title = '删除该方案';
+      del.addEventListener('click', function (e) {
+        e.stopPropagation();
+        state.plans = state.plans.filter(function (x) { return x.id !== p.id; });
+        if (state.activePlanId === p.id) state.activePlanId = state.plans.length ? state.plans[state.plans.length - 1].id : null;
+        renderTabs(); renderCompare();
+      });
+      el.appendChild(inp); el.appendChild(del);
+      el.addEventListener('click', function () {
+        state.activePlanId = p.id;
+        renderTabs();
+        restorePlan(p);
+      });
+      box.appendChild(el);
+    });
+  }
+
+  function restorePlan(p) {
+    state.mode = p.mode;
+    switchMode(p.mode);
+    var i = p.input;
+    $('birthYear').value = i.birthYear;
+    $('birthMonth').value = i.birthMonth;
+    if (p.mode === 'worker') {
+      $('personType').value = i.personKey;
+      $('paidMonths').value = i.paidMonths;
+      $('accountBalance').value = i.accountBalance;
+      $('deemedMonths').value = val('deemedMonths');
+      $('manualAge').value = i.manualAge === null ? '' : i.manualAge;
+      $('monthlySalary').value = U.fmtInt(i.monthlySalary);
+      $('workerPlan').value = i.plan;
+      $('fgCustomYears').style.display = i.plan === 'custom' ? 'flex' : 'none';
+    } else {
+      $('resPaidYears').value = i.paidYears;
+      $('resBalance').value = i.accountBalance;
+      $('resTier').value = i.tier;
+      $('resPlan').value = i.plan;
+      $('fgResCustomYears').style.display = i.plan === 'custom' ? 'flex' : 'none';
+    }
+    syncRetireInfo(); syncWorkerEstimates(); syncResidentEstimates();
+    state.lastResult = { mode: p.mode, input: i, results: p.results };
+    renderResult(p.results);
+    toast('已载入「' + p.name + '」');
+  }
+
+  function renderCompare() {
+    var tb = $('compareBody'); tb.innerHTML = '';
+    if (!state.plans.length) {
+      tb.innerHTML = '<tr><td colspan="8" class="adjacent-empty">暂无已保存方案，测算后可点击「保存为新方案」进行多方案对比</td></tr>';
+      return;
+    }
+    var cmp = E.comparePlans(state.plans);
+    if (!cmp) cmp = { best: {} };
+    state.plans.forEach(function (p, idx) {
+      var s = p.summary;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td style="font-weight:600;color:#334155">' + esc(p.name) + '</td>' +
+        '<td>' + s.type + '</td>' +
+        '<td>' + s.planText + '</td>' +
+        '<td>' + U.fmtInt(s.monthPay) + '</td>' +
+        '<td>' + U.fmtInt(s.yearPay) + '</td>' +
+        '<td class="' + (cmp.best.totalInvest === idx ? 'best' : '') + '">' + U.fmtInt(s.totalInvest) + '</td>' +
+        '<td class="' + (cmp.best.totalPension === idx ? 'best' : '') + '">' + U.fmtInt(s.pension) + ' 元</td>' +
+        '<td class="' + (cmp.best.recoverMonths === idx ? 'best' : '') + '">' + (s.recover >= 12 ? Math.floor(s.recover / 12) + '年' + (s.recover % 12) + '个月' : s.recover + '个月') + '</td>';
+      tb.appendChild(tr);
+    });
+    if (state.plans.length >= 2) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="8" style="text-align:left;font-size:12.5px;color:#64748b;background:#f8fafc">' +
+        '红底为同项最优（总投入最低 / 月养老金最高 / 回本最快）。30 年累计领取：' +
+        state.plans.map(function (p) { return esc(p.name) + ' ' + U.fmtInt(p.summary.totalPension * 12 * 30) + ' 元'; }).join('；') + '</td>';
+      tb.appendChild(tr);
+    }
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+
+</script>
 </body>
 </html>
